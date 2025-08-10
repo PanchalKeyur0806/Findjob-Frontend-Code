@@ -6,7 +6,10 @@ const Hero = () => {
   return (
     <section className="pt-10 flex flex-col justify-center items-center bg-black text-white ">
       <div>
-        <h1 id="hero-heading" className="text-5xl font-mono  font-bold">
+        <h1
+          id="hero-heading"
+          className="text-3xl md:text-5xl font-mono  font-bold"
+        >
           Find Your Dream <span>JOb</span> Today
         </h1>
         <h3 id="hero-text" className="mt-3 font-extralight text-sm text-center">
