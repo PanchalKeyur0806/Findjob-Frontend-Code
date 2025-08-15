@@ -47,9 +47,9 @@ const Footer = () => {
           <div id="footer-from">
             <input
               type="email"
-              name="email"
-              id="email"
-              className="my-3 outline outline-white rounded px-3 py-0.5"
+              name="useremail"
+              id="useremail"
+              className="my-3 outline outline-white rounded md:px-3 py-0.5"
             />
             <button className="my-3  md:mx-0 bg-purple-800 text-white px-3 py-1 rounded cursor-pointer">
               Subscribe Now
