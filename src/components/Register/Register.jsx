@@ -1,7 +1,7 @@
-import React, { useActionState } from "react";
+import axios from "axios";
+import React, { useActionState, useState } from "react";
 import usePostData from "../../Hooks/FetchDataHook";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 const InputFields = ({ labelName, fieldName, fieldType, fieldId }) => {
   return (
@@ -21,12 +21,32 @@ const InputFields = ({ labelName, fieldName, fieldType, fieldId }) => {
 };
 
 const Register = () => {
+  // navigation hook
+  const navigate = useNavigate();
+
+  // others hooks
   const [state, action, pending] = useActionState(submitUser, {
     success: null,
     message: "",
   });
+  const [otpopen, setOtpOpen] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [email, setEmail] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [otpMessage, setOtpMessage] = useState("");
+
+  // custom hook
   const [postData, data, message, error] = usePostData();
-  const navigate = useNavigate();
+
+  // function for otp
+  function valueOfOtp(e) {
+    setOtp(e.target.value);
+  }
+
+  // function for getting email
+  function valueOfEmail(e) {
+    setEmail(e.target.value);
+  }
 
   // send data to backend
   async function submitUser(preData, formData) {
@@ -38,7 +58,7 @@ const Register = () => {
     const roles = formData.get("roles");
 
     const responseData = await postData(
-      `http://localhost:7000/api/auth/register`,
+      `https://findjob-rest-api.onrender.com/api/auth/register`,
       {
         name,
         email,
@@ -50,9 +70,38 @@ const Register = () => {
     );
     if (!responseData) return;
 
-    setTimeout(() => {
-      navigate("/");
-    }, 3000);
+    if (responseData.status && responseData.status === "success") {
+      setOtpOpen(true);
+    }
+  }
+
+  // handle otp after registering the user
+  async function handlingOtp() {
+    try {
+      setOtpError("");
+      const otpResponse = await axios.post(
+        `https://findjob-rest-api.onrender.com/api/auth/verifyotp`,
+        { email, otp }
+      );
+
+      // get token from the response
+      const token = otpResponse.data.token;
+
+      // set cookie
+      document.cookie = `token=${token}; path=/; max-age=${
+        24 * 60 * 60
+      }; SameSite=Laxe`;
+
+      setOtpMessage(otpResponse.data.message);
+
+      // go to homepage after completion of otp verification
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+    } catch (error) {
+      setOtpMessage("");
+      setOtpError(error.response.data.message);
+    }
   }
 
   // handle google login
@@ -63,7 +112,13 @@ const Register = () => {
 
   return (
     <main>
-      <section className="md:max-w-[800px] w-[95%] mx-auto bg-purple-800 text-white rounded">
+      <section
+        className={
+          otpopen
+            ? "hidden"
+            : "md:max-w-[800px] w-[95%] mx-auto bg-purple-800 text-white rounded"
+        }
+      >
         <h1 className="my-5 text-center text-3xl font-bold font-mono">
           Register Here
         </h1>
@@ -80,9 +135,9 @@ const Register = () => {
 
             {/* Enter your email address */}
             <InputFields
-              labelName="email"
+              labelName="registerEmail"
               fieldType={"email"}
-              fieldId={"email"}
+              fieldId={"registerEmail"}
               fieldName={"email"}
             />
           </div>
@@ -161,6 +216,74 @@ const Register = () => {
             </h1>
           </div>
         </form>
+      </section>
+
+      <section
+        className={
+          otpopen ? "h-[65vh] flex justify-center items-center" : "hidden"
+        }
+      >
+        <div className="max-w-[500px] w-[95%] mx-auto rounded-md shadow">
+          <div>
+            <h1 className="my-8 mx-15 text-4xl font-medium">Enter Your Otp</h1>
+          </div>
+          {/* card description */}
+          <div className="mx-15">
+            {/* email field */}
+            <div>
+              <label htmlFor="email">Enter Your Email Here :- </label>
+              <input
+                type="email"
+                name="email"
+                id="email"
+                placeholder="Enter your email"
+                className="w-full sm:w-[70%] px-4 py-2 outline rounded"
+                onChange={valueOfEmail}
+              />
+            </div>
+
+            {/* otp value */}
+            <div className="mt-5 flex flex-col gap-3 ">
+              <label htmlFor="otp">Enter Your Otp Here :- </label>
+              <input
+                type="text"
+                name="otp"
+                id="otp"
+                placeholder="Enter your otp"
+                className="w-full sm:w-[70%] px-4 py-2 outline rounded"
+                onChange={valueOfOtp}
+              />
+            </div>
+
+            {otpError && (
+              <div className="w-full md:w-[70%] bg-red-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
+                {otpError}
+              </div>
+            )}
+            {otpMessage && (
+              <div className="w-full md:w-[70%] bg-green-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
+                {otpMessage}
+              </div>
+            )}
+
+            {/* submit button */}
+            <div className="mt-8 flex gap-5">
+              <button
+                type="submit"
+                onClick={handlingOtp}
+                className="mb-3 px-4 py-2 bg-green-800 text-white rounded shadow cursor-pointer transition-all duration-200 ease-in-out hover:bg-green-900"
+              >
+                Verify Otp
+              </button>
+              <button
+                type="submit"
+                className="mb-3 px-4 py-2 bg-red-800 text-white rounded shadow cursor-pointer transition-all duration-200 ease-in-out hover:bg-red-900"
+              >
+                Resend Otp
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   );
