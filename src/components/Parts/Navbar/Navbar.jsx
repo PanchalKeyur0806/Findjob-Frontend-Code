@@ -1,12 +1,16 @@
 import { useState } from "react";
-import MobileNavbar from "./MobileNavbar";
 import { IoReorderThreeOutline, IoClose } from "react-icons/io5";
+import Cookies from "js-cookie";
+import MobileNavbar from "./MobileNavbar";
 
 const Navbar = () => {
   const [isOpen, setOpen] = useState(false);
   function handleChange() {
     setOpen(!isOpen);
   }
+
+  // get the token form cookie
+  const token = Cookies.get("token");
 
   return (
     <header className="shadow">
@@ -25,17 +29,22 @@ const Navbar = () => {
         </div>
 
         <div className="flex gap-3 items-center">
-          <div id="authentication" className="flex gap-3">
-            <div className="bg-purple-800 text-white border border-white px-3 py-1 rounded ">
-              <button className="cursor-pointer">Register</button>
+          {token ? (
+            <div id="authentication" className="flex gap-3">
+              <div className="bg-purple-800 text-white border border-white px-3 py-1 rounded ">
+                <button className="cursor-pointer">Logout</button>
+              </div>
             </div>
-            <div className="border border-purple-800 bg-white text-purple-800 px-3 py-1 rounded">
-              <button className="cursor-pointer">Login</button>
+          ) : (
+            <div id="authentication" className="flex gap-3">
+              <div className="bg-purple-800 text-white border border-white px-3 py-1 rounded ">
+                <button className="cursor-pointer">Register</button>
+              </div>
+              <div className="border border-purple-800 bg-white text-purple-800 px-3 py-1 rounded">
+                <button className="cursor-pointer">Login</button>
+              </div>
             </div>
-            <div className="bg-purple-800 text-white border border-white px-3 py-1 rounded ">
-              <button className="cursor-pointer">Logout</button>
-            </div>
-          </div>
+          )}
 
           <div className="lg:hidden text-4xl">
             {isOpen ? (
