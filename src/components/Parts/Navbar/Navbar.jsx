@@ -1,8 +1,9 @@
 import { useState } from "react";
+import axios from "axios";
+import { NavLink } from "react-router-dom";
 import { IoReorderThreeOutline, IoClose } from "react-icons/io5";
 import Cookies from "js-cookie";
 import MobileNavbar from "./MobileNavbar";
-import axios from "axios";
 
 const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const [isOpen, setOpen] = useState(false);
@@ -40,11 +41,46 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
         </div>
         <div id="navbar">
           <ul className="hidden lg:flex gap-3">
-            <li>Home</li>
-            <li>Opportunities</li>
-            <li>Chat</li>
-            <li>About Us</li>
-            <li>Contact Us</li>
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `${isActive ? "text-purple-800  font-medium" : ""}`
+              }
+            >
+              <li>Home</li>
+            </NavLink>
+            <NavLink
+              to="/jobs"
+              className={({ isActive }) =>
+                `${isActive ? "text-purple-800  font-medium" : ""}`
+              }
+            >
+              <li>Opportunities</li>
+            </NavLink>
+            <NavLink
+              to="/chat"
+              className={({ isActive }) =>
+                `${isActive ? "text-purple-800  font-medium" : ""}`
+              }
+            >
+              <li>Chat</li>
+            </NavLink>
+            <NavLink
+              to={"/aboutus"}
+              className={({ isActive }) =>
+                `${isActive ? "text-purple-800  font-medium" : ""}`
+              }
+            >
+              <li>About Us</li>
+            </NavLink>
+            <NavLink
+              to={"/contactus"}
+              className={({ isActive }) =>
+                `${isActive ? "text-purple-800  font-medium" : ""}`
+              }
+            >
+              <li>Contact Us</li>
+            </NavLink>
           </ul>
         </div>
 
@@ -60,10 +96,14 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
           ) : (
             <div id="authentication" className="flex gap-3">
               <div className="bg-purple-800 text-white border border-white px-3 py-1 rounded ">
-                <button className="cursor-pointer">Register</button>
+                <NavLink to={"/register"}>
+                  <button className="cursor-pointer">Register</button>
+                </NavLink>
               </div>
               <div className="border border-purple-800 bg-white text-purple-800 px-3 py-1 rounded">
-                <button className="cursor-pointer">Login</button>
+                <NavLink to={"/login"}>
+                  <button className="cursor-pointer">Login</button>
+                </NavLink>
               </div>
             </div>
           )}

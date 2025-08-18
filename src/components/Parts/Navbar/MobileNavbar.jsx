@@ -1,14 +1,50 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 
 const MobileNavbar = () => {
   return (
     <div className="absolute left-0 top-15 w-full">
       <ul className="py-5 flex flex-col text-center gap-5 bg-purple-900 text-white text-xl">
-        <li>Home</li>
-        <li>Opportunities</li>
-        <li>Chat</li>
-        <li>About Us</li>
-        <li>Contact Us</li>
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            `${isActive ? "text-gray-300  font-medium" : ""}`
+          }
+        >
+          <li>Home</li>
+        </NavLink>
+        <NavLink
+          to="/jobs"
+          className={({ isActive }) =>
+            `${isActive ? "text-gray-300  font-medium" : ""}`
+          }
+        >
+          <li>Opportunities</li>
+        </NavLink>
+        <NavLink
+          to="/chat"
+          className={({ isActive }) =>
+            `${isActive ? "text-gray-300  font-medium" : ""}`
+          }
+        >
+          <li>Chat</li>
+        </NavLink>
+        <NavLink
+          to={"/aboutus"}
+          className={({ isActive }) =>
+            `${isActive ? "text-gray-300 font-medium" : ""}`
+          }
+        >
+          <li>About Us</li>
+        </NavLink>
+        <NavLink
+          to={"/contactus"}
+          className={({ isActive }) =>
+            `${isActive ? "text-gray-300  font-medium" : ""}`
+          }
+        >
+          <li>Contact Us</li>
+        </NavLink>
       </ul>
     </div>
   );
