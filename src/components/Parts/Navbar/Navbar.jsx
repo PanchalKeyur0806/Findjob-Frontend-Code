@@ -2,15 +2,35 @@ import { useState } from "react";
 import { IoReorderThreeOutline, IoClose } from "react-icons/io5";
 import Cookies from "js-cookie";
 import MobileNavbar from "./MobileNavbar";
+import axios from "axios";
 
-const Navbar = () => {
+const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const [isOpen, setOpen] = useState(false);
+
   function handleChange() {
     setOpen(!isOpen);
   }
 
-  // get the token form cookie
-  const token = Cookies.get("token");
+  // check that project is in development
+  const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
+
+  // handle Logout
+  const handleLogout = async () => {
+    // setLoggingOut(true);
+    try {
+      const url = isDevelopment
+        ? "http://localhost:7000/api/auth/logout"
+        : import.meta.env.VITE_BACKEND_URL + "api/auth/logout";
+
+      await axios.post(url, null, {
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsAuthenticated(false);
+    }
+  };
 
   return (
     <header className="shadow">
@@ -29,10 +49,12 @@ const Navbar = () => {
         </div>
 
         <div className="flex gap-3 items-center">
-          {token ? (
+          {isAuthenticated ? (
             <div id="authentication" className="flex gap-3">
               <div className="bg-purple-800 text-white border border-white px-3 py-1 rounded ">
-                <button className="cursor-pointer">Logout</button>
+                <button className="cursor-pointer" onClick={handleLogout}>
+                  Logout
+                </button>
               </div>
             </div>
           ) : (

@@ -1,24 +1,28 @@
 import React, { useActionState } from "react";
 import Cookies from "js-cookie";
+import { useOutletContext } from "react-router-dom";
 import usePostData from "../../Hooks/FetchDataHook";
 
 const Login = () => {
   const [state, action, pending] = useActionState(submitLogin, null);
   const [postData, data, message, error] = usePostData();
+  const { setIsAuthenticated } = useOutletContext();
 
+  // check that project is in development
+  const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
+
+  // Handle the login
   async function submitLogin(preData, formData) {
     const email = formData.get("email");
     const password = formData.get("password");
 
-    console.log(email, password);
+    // check that project is in development
+    const url = isDevelopment
+      ? "http://localhost:7000/api/auth/login"
+      : import.meta.env.VITE_BACKEND_URL + "api/auth/login";
 
-    const loginResponse = await postData(
-      `https://findjob-rest-api.onrender.com/api/auth/login`,
-      { email, password }
-    );
-
-    // set the cookie
-    Cookies.set("token", loginResponse.token, { expires: 1, path: "/" });
+    await postData(url, { email, password });
+    setIsAuthenticated(true);
   }
   return (
     <section className="px-5 my-5 max-w-[400px] w-[95%] mx-auto shadow ">

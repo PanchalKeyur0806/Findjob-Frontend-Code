@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useActionState, useState } from "react";
 import usePostData from "../../Hooks/FetchDataHook";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 const InputFields = ({ labelName, fieldName, fieldType, fieldId }) => {
   return (
@@ -21,6 +21,7 @@ const InputFields = ({ labelName, fieldName, fieldType, fieldId }) => {
 };
 
 const Register = () => {
+  const { setIsAuthenticated } = useOutletContext();
   // navigation hook
   const navigate = useNavigate();
 
@@ -37,6 +38,9 @@ const Register = () => {
 
   // custom hook
   const [postData, data, message, error] = usePostData();
+
+  // check that project is in development
+  const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
 
   // function for otp
   function valueOfOtp(e) {
@@ -57,17 +61,18 @@ const Register = () => {
     const dateOfBirth = formData.get("dateOfBirth");
     const roles = formData.get("roles");
 
-    const responseData = await postData(
-      `https://findjob-rest-api.onrender.com/api/auth/register`,
-      {
-        name,
-        email,
-        password,
-        phoneNumber,
-        dateOfBirth,
-        roles,
-      }
-    );
+    const url = isDevelopment
+      ? "http://localhost:7000/api/auth/register"
+      : import.meta.env.VITE_BACKEND_URL + "api/auth/register";
+
+    const responseData = await postData(url, {
+      name,
+      email,
+      password,
+      phoneNumber,
+      dateOfBirth,
+      roles,
+    });
     if (!responseData) return;
 
     if (responseData.status && responseData.status === "success") {
@@ -79,20 +84,21 @@ const Register = () => {
   async function handlingOtp() {
     try {
       setOtpError("");
+
+      const url = isDevelopment
+        ? "http://localhost:7000/api/auth/verifyotp"
+        : import.meta.env.VITE_BACKEND_URL + "api/auth/verifyotp";
+
       const otpResponse = await axios.post(
-        `https://findjob-rest-api.onrender.com/api/auth/verifyotp`,
-        { email, otp }
+        url,
+        { email, otp },
+        {
+          withCredentials: true,
+        }
       );
 
-      // get token from the response
-      const token = otpResponse.data.token;
-
-      // set cookie
-      document.cookie = `token=${token}; path=/; max-age=${
-        24 * 60 * 60
-      }; SameSite=Laxe`;
-
       setOtpMessage(otpResponse.data.message);
+      setIsAuthenticated(true);
 
       // go to homepage after completion of otp verification
       setTimeout(() => {

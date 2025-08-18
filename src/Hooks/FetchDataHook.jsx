@@ -9,7 +9,12 @@ const usePostData = () => {
   const postData = async (urlPath, inputData) => {
     try {
       setError("");
-      const response = await axios.post(urlPath, inputData);
+      const response = await axios.post(urlPath, inputData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       setMessage(response.data.message);
       setData(response.data);
       return response.data;
