@@ -81,6 +81,14 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
             >
               <li>Contact Us</li>
             </NavLink>
+            <NavLink
+              to={"/profile"}
+              className={({ isActive }) =>
+                `${isActive ? "text-purple-800 font-medium" : ""}`
+              }
+            >
+              <li>Profile</li>
+            </NavLink>
           </ul>
         </div>
 

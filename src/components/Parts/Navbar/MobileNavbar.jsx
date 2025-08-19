@@ -45,6 +45,15 @@ const MobileNavbar = () => {
         >
           <li>Contact Us</li>
         </NavLink>
+
+        <NavLink
+          to={"/profile"}
+          className={({ isActive }) =>
+            `${isActive ? "text-gray-300 font-medium" : ""}`
+          }
+        >
+          <li>Profile</li>
+        </NavLink>
       </ul>
     </div>
   );
