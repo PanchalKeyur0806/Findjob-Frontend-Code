@@ -25,7 +25,7 @@ const Login = () => {
     setIsAuthenticated(true);
   }
   return (
-    <section className="px-5 my-5 max-w-[400px] w-[95%] mx-auto shadow ">
+    <section className="px-5 my-5 max-w-[400px] w-[95%] mx-auto shadow font-poppins">
       <form action={action}>
         {/* Heading */}
         <div className="pt-3">
