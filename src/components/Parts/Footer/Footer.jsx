@@ -44,7 +44,7 @@ const Footer = () => {
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate,
             accusamus?
           </p>
-          <div id="footer-from">
+          <div id="footer-from" className="hidden sm:block">
             <input
               type="email"
               name="useremail"
