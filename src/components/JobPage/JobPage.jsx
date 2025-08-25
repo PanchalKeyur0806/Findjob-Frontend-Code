@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { IndianRupee, MapPin, SquarePlus, Timer, Users, X } from "lucide-react";
 import useGetData from "../../Hooks/FetchGetDataHook";
+import { useNavigate } from "react-router-dom";
 
 const JobPage = () => {
   const [data, setData] = useState(null);
-
   const [getData, getLoading, getMessage, getError] = useGetData();
+  const navigate = useNavigate();
 
   const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
   const url = isDevelopment
@@ -22,11 +23,15 @@ const JobPage = () => {
       });
 
       setData(data?.data);
-      console.log(data);
     }
 
     fetchData();
   }, []);
+
+  // open job Details
+  const openJobDetails = (jobId) => {
+    navigate(`/job/${jobId}`);
+  };
 
   if (getLoading) {
     return (
@@ -216,7 +221,10 @@ const JobPage = () => {
                       </div>
 
                       <div>
-                        <button className="px-3 py-2 mt-5 sm:mt-0 bg-purple-800 text-sm text-white rounded-lg cursor-pointer hover:bg-purple-950 transition duration-200 ease-in-out ">
+                        <button
+                          className="px-3 py-2 mt-5 sm:mt-0 bg-purple-800 text-sm text-white rounded-lg cursor-pointer hover:bg-purple-950 transition duration-200 ease-in-out "
+                          onClick={() => openJobDetails(job._id)}
+                        >
                           View Details
                         </button>
                       </div>
