@@ -18,8 +18,6 @@ const JobDetails = () => {
   const params = useParams();
   //   params.jobId
 
-  //   VITE_BACKEND_URL=https://findjob-rest-api.onrender.com/
-  // VITE_REACT_ENV=development
   const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
   const url = isDevelopment
     ? `http://localhost:7000/api/jobs/${params.jobId}`

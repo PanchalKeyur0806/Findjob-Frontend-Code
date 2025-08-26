@@ -1,9 +1,48 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { CiSaveDown2 } from "react-icons/ci";
+import useGetData from "../../../Hooks/FetchGetDataHook";
+import { IndianRupee, MapPin, SquarePlus, Timer, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const RecentJobs = () => {
-  let logo =
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrvNmVpIrWrF4MKWIgvXO3I_pvVLEOt6PciQ&s";
+  const [data, setData] = useState(null);
+  const [getData, getLoading, getMessage, getError] = useGetData();
+  const navigate = useNavigate();
+
+  const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
+  const url = isDevelopment
+    ? "http://localhost:7000/api/jobs/latestjobs"
+    : import.meta.env.VITE_BACKEND_URL + `api/jobs/latestjobs`;
+
+  useEffect(() => {
+    async function fetchLatestJobs(url) {
+      const response = await getData(url, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      let data = response.data;
+      setData(data);
+      console.log(data);
+    }
+    fetchLatestJobs(url);
+  }, []);
+
+  // handleNavigate
+  const handleNavigate = (jobId) => {
+    navigate(`/job/${jobId}`);
+  };
+
+  if (getLoading) {
+    return (
+      <div className="h-[30vh] flex justify-center items-center text-4xl font-poppins font-medium">
+        <h1>Loading ....</h1>
+      </div>
+    );
+  }
+
   return (
     <>
       <section className="max-w-[1000px] w-[95%] mx-auto">
@@ -26,62 +65,88 @@ const RecentJobs = () => {
           </div>
         </div>
 
-        <div id="cards" className="mt-13">
-          <div id="card" className="shadow pl-10 mb-5">
-            <div className="flex flex-col sm:flex-row sm:justify-between">
-              {/* something else */}
-              <div className="pt-3">
-                <div className="flex gap-10">
-                  <div id="card-img">
-                    <img
-                      src={logo}
-                      alt="Company logo"
-                      className="w-15 h-15 object-cover rounded-full"
-                    />
+        {getMessage && (
+          <div className="px-5 py-2 my-3  bg-green-700 text-white rounded-lg">
+            <p>{getMessage}</p>
+          </div>
+        )}
+        {getError && (
+          <div className="px-5 py-2 my-3  bg-red-700 text-white rounded-lg">
+            <p>{getError}</p>
+          </div>
+        )}
+
+        {/* Job Listing */}
+        <div>
+          {data?.map((job) => (
+            <div key={job._id} className="mx-3 my-5 px-3 py-2  shadow">
+              <div>
+                {/* Job Info and add to later menu */}
+                <div className="flex justify-between">
+                  {/* images and job title menu */}
+                  <div className="flex gap-7">
+                    <div>
+                      <img
+                        src={job.company[0].companyLogo}
+                        alt="Company Logo"
+                        className="rounded-full size-15 object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h1 className="mt-1 text-xl font-medium">{job.title}</h1>
+                      <h3 className="mt-1 text-sm">{job.location}</h3>
+                    </div>
                   </div>
-                  <div className="card-heading">
-                    <h1 className="text-2xl font-bold font-mono">
-                      Company Name
-                    </h1>
-                    <p className="text-sm">Location to the comapny</p>
+
+                  {/* add to later meu */}
+                  <div>
+                    <h2 className="cursor-pointer text-purple-800">
+                      <SquarePlus />
+                    </h2>
                   </div>
                 </div>
 
-                <div>
-                  <div className="flex gap-10 mt-5">
-                    <div>
-                      <h1>Category</h1>
+                {/* Job description */}
+                <div className="flex flex-col sm:flex-row justify-between">
+                  <div className="mt-4 flex flex-wrap gap-5">
+                    <div className="flex items-center ">
+                      <p className="px-1 py-1 rounded-full text-purple-700 bg-white">
+                        <IndianRupee size={16} />
+                      </p>
+                      <p>{job.salary}</p>
                     </div>
-                    <div>
-                      <h1>Full time</h1>
+                    <div className="flex items-center ">
+                      <p className="px-1 py-1 rounded-full text-purple-700 bg-white">
+                        <Timer size={16} />
+                      </p>
+                      <p>{job.employeeType}</p>
                     </div>
-                    <div>
-                      <h1>29000/- only</h1>
+                    <div className="flex items-center ">
+                      <p className="px-1 py-1 rounded-full text-purple-700 bg-white">
+                        <Users size={16} />
+                      </p>
+                      <p>{job.numberOfOpenings}</p>
                     </div>
-                    <div>
-                      <h1>Location</h1>
+                    <div className="flex items-center ">
+                      <p className="px-1 py-1 rounded-full text-purple-700 bg-white">
+                        <MapPin size={16} />
+                      </p>
+                      <p>{job.location}</p>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              <div
-                id="card-btn"
-                className="mt-5 sm:mt-4 pr-4 flex flex-col sm:items-center justify-between gap-4 sm:gap-8"
-              >
-                <div>
-                  <h1 className="text-2xl font-medium cursor-pointer">
-                    <CiSaveDown2 />
-                  </h1>
-                </div>
-                <div>
-                  <button className="mb-4 bg-purple-800 text-white px-3 py-2 rounded cursor-pointer">
-                    Job Details
-                  </button>
+                  <div>
+                    <button
+                      onClick={() => handleNavigate(job._id)}
+                      className="px-3 py-2 mt-5 sm:mt-0 bg-purple-800 text-sm text-white rounded-lg cursor-pointer hover:bg-purple-950 transition duration-200 ease-in-out "
+                    >
+                      View Details
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
       </section>
     </>
