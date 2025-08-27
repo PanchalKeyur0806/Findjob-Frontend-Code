@@ -54,6 +54,15 @@ const MobileNavbar = () => {
         >
           <li>Profile</li>
         </NavLink>
+
+        <NavLink
+          to={"applications"}
+          className={({ isActive }) =>
+            `${isActive ? "text-gray-300 font-medium" : ""}`
+          }
+        >
+          <li>My Applications</li>
+        </NavLink>
       </ul>
     </div>
   );

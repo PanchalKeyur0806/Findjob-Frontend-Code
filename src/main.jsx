@@ -16,6 +16,7 @@ import Login from "./components/Login/Login.jsx";
 import UserProfile from "./components/Profile/UserProfile.jsx";
 import JobDetails from "./components/JobDetails/JobDetails.jsx";
 import ContactUs from "./components/ContactUs/ContactUs.jsx";
+import MyApplications from "./components/MyApplications/MyApplications.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -27,6 +28,7 @@ const router = createBrowserRouter(
       <Route path="profile" element={<UserProfile />} />
       <Route path="contactus" element={<ContactUs />} />
       <Route path="auth/callback" element={<AuthCallback />} />
+      <Route path="applications" element={<MyApplications />} />
       <Route path="job/:jobId" element={<JobDetails />} />
     </Route>
   )
