@@ -10,10 +10,13 @@ import {
   Timer,
   Users,
 } from "lucide-react";
+import axios from "axios";
 
 const JobDetails = () => {
   const [data, setData] = useState(null);
   const [getData, getLoading] = useGetData();
+  const [applicationMsg, setApplicationMsg] = useState(null);
+  const [applicationErr, setApplicationErr] = useState(null);
 
   const params = useParams();
   //   params.jobId
@@ -37,6 +40,27 @@ const JobDetails = () => {
 
     fetchData(url);
   }, []);
+
+  // submit application
+  async function submitApplication(isDevelopment, jobId) {
+    const url = isDevelopment
+      ? `http://localhost:7000/api/applications/user/submit/${jobId}`
+      : import.meta.env.VITE_BACKEND_URL +
+        `api/applications/user/submit/${jobId}`;
+
+    try {
+      setApplicationErr("");
+      const response = await axios.post(url, null, {
+        withCredentials: true,
+      });
+
+      const data = response.data;
+      setApplicationMsg(data.message);
+    } catch (error) {
+      setApplicationMsg("");
+      setApplicationErr(error.response.data.message);
+    }
+  }
 
   if (getLoading) {
     return (
@@ -203,9 +227,26 @@ const JobDetails = () => {
           </p>
         </div>
 
+        {applicationMsg && (
+          <div className="px-5 py-2 my-3  bg-green-700 text-white rounded-lg">
+            <p>{applicationMsg}</p>
+          </div>
+        )}
+        {applicationErr && (
+          <div className="px-5 py-2 my-3  bg-red-700 text-white rounded-lg">
+            <p>{applicationErr}</p>
+          </div>
+        )}
+
         {/* Submit Your Application */}
+
         <div className="mt-10">
-          <button className="px-4 py-2 rounded bg-gradient-to-tl from-purple-500  to-purple-900 text-white cursor-pointer hover:to-purple-100 hover:text-black transition duration-300 ease-linear">
+          <button
+            onClick={() => {
+              submitApplication(isDevelopment, data._id);
+            }}
+            className="px-4 py-2 rounded bg-gradient-to-tl from-purple-500  to-purple-900 text-white cursor-pointer hover:to-purple-100 hover:text-black transition duration-300 ease-linear"
+          >
             Submit Your Application
           </button>
         </div>
