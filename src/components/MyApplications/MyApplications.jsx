@@ -51,7 +51,9 @@ const MyApplications = () => {
 
   if (getLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex flex-col justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-600 border-t-transparent mx-auto mb-4"></div>
+
         <h1 className="text-3xl font-medium">Loading ...</h1>
       </div>
     );

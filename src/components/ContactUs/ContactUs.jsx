@@ -1,7 +1,37 @@
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
-import React from "react";
+import React, { useActionState, useState } from "react";
+import useGetData from "../../Hooks/FetchGetDataHook";
+import usePostData from "../../Hooks/FetchDataHook";
 
 const ContactUs = () => {
+  const [contactdata, setContactData] = useState([]);
+  const [postData, data, message, error] = usePostData();
+  const [state, action, pending] = useActionState(handlePostData, null);
+
+  // VITE_BACKEND_URL=https://findjob-rest-api.onrender.com/
+  // VITE_REACT_ENV = development;
+  const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
+  const url = isDevelopment
+    ? "http://localhost:7000/api/contacts/create"
+    : import.meta.env.VITE_BACKEND_URL;
+
+  // submit the form data using action state
+  async function handlePostData(preData, formData) {
+    const firstName = formData.get("firstName");
+    const lastName = formData.get("lastName");
+    const email = formData.get("email");
+    const message = formData.get("message");
+
+    const response = await postData(url, {
+      firstName,
+      lastName,
+      email,
+      message,
+    });
+
+    console.log(response);
+  }
+
   return (
     <section className="font-poppins">
       <div className="h-50 bg-black text-white text-3xl font-medium flex items-center justify-center">
@@ -59,7 +89,7 @@ const ContactUs = () => {
 
         {/* Form section */}
         <div className="w-[95%] lg:w-1/2 mx-auto md:mx-5 bg-purple-200 rounded-lg px-5">
-          <form action="">
+          <form action={action}>
             <div className="my-5">
               <h1 className="text-xl text-center font-medium">Contact Us</h1>
             </div>
@@ -93,7 +123,7 @@ const ContactUs = () => {
                 <label htmlFor="userEmail">UserEmail</label>
                 <input
                   type="email"
-                  name="userEmail"
+                  name="email"
                   id="userEmail"
                   className="px-2 py-1 bg-white shadow focus:outline-none rounded"
                 />
@@ -109,14 +139,36 @@ const ContactUs = () => {
                 ></textarea>
               </div>
 
+              {message && (
+                <div className="px-5 py-2 my-3  bg-green-700 text-white rounded-lg">
+                  <p>{message}</p>
+                </div>
+              )}
+              {error && (
+                <div className="px-5 py-2 my-3  bg-red-700 text-white rounded-lg">
+                  <p>{error}</p>
+                </div>
+              )}
+
               {/* Submit btn */}
               <div className="mt-5 mb-5">
-                <button
-                  type="submit"
-                  className="bg-purple-700 text-white px-3 py-1 rounded cursor-pointer hover:bg-blue-950 transition duration-300 ease-linear"
-                >
-                  Send Message
-                </button>
+                {pending ? (
+                  <button
+                    type="submit"
+                    disabled={true}
+                    className="bg-purple-700 text-white px-3 py-1 rounded cursor-pointer hover:bg-blue-950 transition duration-300 ease-linear"
+                  >
+                    Loading
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={false}
+                    className="bg-purple-700 text-white px-3 py-1 rounded cursor-pointer hover:bg-blue-950 transition duration-300 ease-linear"
+                  >
+                    Send Message
+                  </button>
+                )}
               </div>
             </div>
           </form>
