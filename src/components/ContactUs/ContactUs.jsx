@@ -4,7 +4,6 @@ import useGetData from "../../Hooks/FetchGetDataHook";
 import usePostData from "../../Hooks/FetchDataHook";
 
 const ContactUs = () => {
-  const [contactdata, setContactData] = useState([]);
   const [postData, data, message, error] = usePostData();
   const [state, action, pending] = useActionState(handlePostData, null);
 
@@ -22,14 +21,12 @@ const ContactUs = () => {
     const email = formData.get("email");
     const message = formData.get("message");
 
-    const response = await postData(url, {
+    await postData(url, {
       firstName,
       lastName,
       email,
       message,
     });
-
-    console.log(response);
   }
 
   return (

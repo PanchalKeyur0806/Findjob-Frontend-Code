@@ -17,12 +17,16 @@ import UserProfile from "./components/Profile/UserProfile.jsx";
 import JobDetails from "./components/JobDetails/JobDetails.jsx";
 import ContactUs from "./components/ContactUs/ContactUs.jsx";
 import MyApplications from "./components/MyApplications/MyApplications.jsx";
+import AllJobsPage from "./components/AdminPages/AllJobsPage.jsx";
+import Users from "./components/AdminPages/Users.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
       <Route path="" element={<HomePage />} />
       <Route path="jobs" element={<JobPage />} />
+      <Route path="admin/jobs" element={<AllJobsPage />} />
+      <Route path="admin/users" element={<Users />} />
       <Route path="register" element={<Register />} />
       <Route path="login" element={<Login />} />
       <Route path="profile" element={<UserProfile />} />
@@ -35,7 +39,7 @@ const router = createBrowserRouter(
 );
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  <>
     <RouterProvider router={router} />
-  </StrictMode>
+  </>
 );
