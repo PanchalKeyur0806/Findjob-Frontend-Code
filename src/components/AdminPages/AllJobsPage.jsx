@@ -13,13 +13,13 @@ import {
 import Aside from "../Parts/Aside/Aside";
 
 const AllJobsPage = () => {
-  const socket = useMemo(
-    () =>
-      io("http://localhost:7000", {
-        withCredentials: true,
-      }),
-    []
-  );
+  // const socket = useMemo(
+  //   () =>
+  //     io("http://localhost:7000", {
+  //       withCredentials: true,
+  //     }),
+  //   []
+  // );
 
   const [isAsideOpen, setIsAsideOpen] = useState(false);
   const [jobData, setJobData] = useState(null);
@@ -60,8 +60,6 @@ const AllJobsPage = () => {
   // Update the params
   const updateParams = (params) => {
     const currentParams = new URLSearchParams(searchParams);
-    console.log(currentParams);
-    console.log(params);
 
     Object.keys(params).map((key) => {
       if (params[key] && params[key] !== "all") {
@@ -92,15 +90,20 @@ const AllJobsPage = () => {
 
   //   use effect hook
   useEffect(() => {
+    let socket = io("http://localhost:7000", {
+      withCredentials: true,
+    });
+
     // Admin conencted Event
-    socket.emit("admin_connected", "admin connected successfully");
-
-    // Admin disconnected Event
-
+    socket.on("connect", () => {
+      socket.emit("admin_connected", "admin connected successfully");
+    });
     // listing  on created job
     socket.on("job_created", (data) => {
       setNewCreatedJob(data);
     });
+
+    // Admin disconnected Event
 
     return () => {
       socket.disconnect();
@@ -109,8 +112,6 @@ const AllJobsPage = () => {
 
   useEffect(() => {
     async function fetchData() {
-      console.log(buildBaseUrl());
-
       const response = await getData(buildBaseUrl(), {
         withCredentials: true,
       });
@@ -132,9 +133,6 @@ const AllJobsPage = () => {
   };
 
   const handlePageChange = (newPage) => {
-    console.log("This code is running");
-    console.log(newPage);
-
     updateParams({
       search,
       employeeType: employeeType,
@@ -158,8 +156,6 @@ const AllJobsPage = () => {
   const handleEmployeeType = (e) => {
     setEmployeeType(e.target.value);
   };
-
-  console.log(newCreatedJob);
 
   return (
     <>
