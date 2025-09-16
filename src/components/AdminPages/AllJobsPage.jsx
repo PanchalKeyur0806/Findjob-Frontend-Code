@@ -88,28 +88,7 @@ const AllJobsPage = () => {
     });
   };
 
-  //   use effect hook
-  useEffect(() => {
-    let socket = io("http://localhost:7000", {
-      withCredentials: true,
-    });
-
-    // Admin conencted Event
-    socket.on("connect", () => {
-      socket.emit("admin_connected", "admin connected successfully");
-    });
-    // listing  on created job
-    socket.on("job_created", (data) => {
-      setNewCreatedJob(data);
-    });
-
-    // Admin disconnected Event
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
+  // fetch the data from api
   useEffect(() => {
     async function fetchData() {
       const response = await getData(buildBaseUrl(), {
@@ -127,6 +106,13 @@ const AllJobsPage = () => {
     fetchData();
   }, [searchParams]);
 
+  if (getLoading) {
+    return (
+      <div className="h-screen flex justify-center items-center text-4xl font-medium font-poppins">
+        <h1>Loading...</h1>
+      </div>
+    );
+  }
   // Go to view jobs page
   const gotoJobDetails = (jobId) => {
     navigate(`/job/${jobId}`);
@@ -160,8 +146,11 @@ const AllJobsPage = () => {
   return (
     <>
       <section className="flex flex-row">
-        <Aside />
-        <div className="h-screen w-full md:w-3/4 font-poppins  overflow-y-scroll">
+        <Aside
+          isAsideOpen={isAsideOpen}
+          onclose={() => setIsAsideOpen(false)}
+        />
+        <div className="min-h-screen md:h-screen w-full md:w-3/4 font-poppins  md:overflow-auto">
           {newCreatedJob &&
             setTimeout(() => {
               <div className=" px-5 py-2 font-medium">
@@ -172,6 +161,22 @@ const AllJobsPage = () => {
           {/* menu for sidebar */}
           <div className="block md:hidden w-[95%] mx-auto px-7 mt-5">
             <Menu onClick={hanldeAside} />
+          </div>
+
+          <div className="md:mt-10 max-w-[1200px] w-[95%] mx-auto mt-5 px-10">
+            <h1 className="text-3xl font-medium mb-2">Job Management</h1>
+            <p className="text-sm text-gray-500">
+              Total <span className="text-black font-medium">{totalJobs}</span>{" "}
+              Jobs
+            </p>
+            <p className="text-sm text-gray-500">
+              Total <span className="text-black font-medium">{numOfPages}</span>{" "}
+              Pages
+            </p>
+            <p className="text-sm text-gray-500">
+              Current{" "}
+              <span className="text-black font-medium">{currentPage}</span> Page
+            </p>
           </div>
 
           {/* searching functionality */}

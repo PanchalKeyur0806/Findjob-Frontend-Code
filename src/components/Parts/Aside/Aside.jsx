@@ -1,11 +1,22 @@
+import { X } from "lucide-react";
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-const Aside = () => {
+const Aside = ({ isAsideOpen, onclose }) => {
   return (
-    <aside className="hidden md:block w-[95%] md:w-1/4 bg-purple-800 h-screen text-white font-poppins">
+    // <aside className="hidden md:block w-[95%] md:w-1/4 bg-purple-800 h-screen text-white font-poppins">
+    <aside
+      className={`fixed md:static top-0 left-0 h-screen w-64 bg-purple-800 text-white font-poppins transform transition duration-150 ease-in ${
+        isAsideOpen ? "translate-x-0" : "-translate-x-full"
+      } md:translate-x-0 md:block z-50`}
+    >
       <div className="px-10 text-center mt-10 text-xl">
         <ul>
+          <li className=" md:hidden flex flex-row-reverse">
+            <button onClick={onclose}>
+              <X size={24} />
+            </button>
+          </li>
           <NavLink
             to={"/admin/dashboard"}
             className={({ isActive }) =>

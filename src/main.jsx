@@ -19,22 +19,28 @@ import ContactUs from "./components/ContactUs/ContactUs.jsx";
 import MyApplications from "./components/MyApplications/MyApplications.jsx";
 import AllJobsPage from "./components/AdminPages/AllJobsPage.jsx";
 import Users from "./components/AdminPages/Users.jsx";
+import AdminLayout from "./AdminLayout.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<Layout />}>
-      <Route path="" element={<HomePage />} />
-      <Route path="jobs" element={<JobPage />} />
-      <Route path="admin/jobs" element={<AllJobsPage />} />
-      <Route path="admin/users" element={<Users />} />
-      <Route path="register" element={<Register />} />
-      <Route path="login" element={<Login />} />
-      <Route path="profile" element={<UserProfile />} />
-      <Route path="contactus" element={<ContactUs />} />
-      <Route path="auth/callback" element={<AuthCallback />} />
-      <Route path="applications" element={<MyApplications />} />
-      <Route path="job/:jobId" element={<JobDetails />} />
-    </Route>
+    <>
+      <Route path="/" element={<Layout />}>
+        <Route path="" element={<HomePage />} />
+        <Route path="jobs" element={<JobPage />} />
+        <Route path="register" element={<Register />} />
+        <Route path="login" element={<Login />} />
+        <Route path="profile" element={<UserProfile />} />
+        <Route path="contactus" element={<ContactUs />} />
+        <Route path="auth/callback" element={<AuthCallback />} />
+        <Route path="applications" element={<MyApplications />} />
+        <Route path="job/:jobId" element={<JobDetails />} />
+      </Route>
+
+      <Route path="admin" element={<AdminLayout />}>
+        <Route path="jobs" element={<AllJobsPage />} />
+        <Route path="users" element={<Users />} />
+      </Route>
+    </>
   )
 );
 
