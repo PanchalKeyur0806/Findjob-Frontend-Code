@@ -20,6 +20,8 @@ import MyApplications from "./components/MyApplications/MyApplications.jsx";
 import AllJobsPage from "./components/AdminPages/AllJobsPage.jsx";
 import Users from "./components/AdminPages/Users.jsx";
 import AdminLayout from "./AdminLayout.jsx";
+import Dashboard from "./components/AdminPages/Dashboard.jsx";
+import { SocketProvider } from "./Contexts/socketContext.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -37,6 +39,7 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="admin" element={<AdminLayout />}>
+        <Route path="dashboard" element={<Dashboard />} />
         <Route path="jobs" element={<AllJobsPage />} />
         <Route path="users" element={<Users />} />
       </Route>
@@ -46,6 +49,8 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")).render(
   <>
-    <RouterProvider router={router} />
+    <SocketProvider>
+      <RouterProvider router={router} />
+    </SocketProvider>
   </>
 );
