@@ -150,7 +150,7 @@ const AllJobsPage = () => {
           isAsideOpen={isAsideOpen}
           onclose={() => setIsAsideOpen(false)}
         />
-        <div className="min-h-screen md:h-screen w-full md:w-3/4 font-poppins  md:overflow-auto">
+        <div className="min-h-screen md:h-screen w-full font-poppins  md:overflow-auto">
           {newCreatedJob &&
             setTimeout(() => {
               <div className=" px-5 py-2 font-medium">

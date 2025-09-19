@@ -135,7 +135,7 @@ const Users = () => {
   return (
     <div className="flex flex-row font-poppins ">
       <Aside isAsideOpen={isAsideOpen} onclose={() => setIsAsideOpen(false)} />
-      <section className="h-screen  w-full md:w-3/4 mx-auto overflow-auto">
+      <section className="h-screen  w-full mx-auto overflow-auto">
         <div className="px-10 block md:hidden mt-5">
           <button>
             <Menu onClick={handleAside} />
