@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Aside from "../Parts/Aside/Aside";
-import { Menu, Users } from "lucide-react";
+import { MailCheck, Menu, Phone, Users } from "lucide-react";
 import useGetData from "../../Hooks/FetchGetDataHook";
 import { useSocket } from "../../Contexts/useSocket";
 import {
@@ -12,17 +12,29 @@ import {
   Legend,
   Tooltip,
   ResponsiveContainer,
+  Pie,
+  PieChart,
+  Cell,
+  Label,
 } from "recharts";
+import AdminModel from "../Parts/AdminModel/AdminModel";
 
 const Dashboard = () => {
   const [isAsideOpen, setIsAsideOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState([]);
   const [userPercentage, setUserPercentage] = useState("");
   const [companiesPercentage, setCompaniesPercentage] = useState("");
   const [jobsPercentage, setJobsPercentage] = useState("");
   const [claimsPercentage, setClaimsPercentage] = useState("");
+  const [jobsNotifications, setJobsNotifications] = useState(null);
+  const [userNotifications, setUserNotifications] = useState(null);
+  const [companyNotifications, setCompanyNotifications] = useState(null);
+  const [claimsNotifications, setClaimsNotifications] = useState(null);
   const [allcharts, setAllCharts] = useState();
+  const [activeUsers, setActiveUsers] = useState(null);
 
-  const [getData, getLoading, getMessage, getError] = useGetData();
+  const [getData] = useGetData();
 
   const socket = useSocket();
 
@@ -31,7 +43,6 @@ const Dashboard = () => {
   // useEffect for sockets
   useEffect(() => {
     if (!socket) return;
-    console.log("Socket connected");
 
     socket.on("connect", () => {
       console.log("User is connected");
@@ -39,12 +50,30 @@ const Dashboard = () => {
 
     // listing on job created event
     socket.on("job_created", (data) => {
-      console.log("data from backend is ", data);
+      setJobsNotifications((prev) => [...prev, data]);
+    });
+
+    // listing on user created event
+    socket.on("user_created", (data) => {
+      setUserNotifications((prev) => [...prev, data]);
+    });
+
+    // listing on company created event
+    socket.on("company_created", (data) => {
+      setCompanyNotifications((prev) => [...prev, data]);
+    });
+
+    // listing for creating claims
+    socket.on("claim_created", (data) => {
+      setClaimsNotifications((prev) => [...prev, data]);
     });
 
     return () => {
       socket.off("job_created");
       socket.off("connect");
+      socket.off("claim_created");
+      socket.off("user_created");
+      socket.off("company_created");
     };
   }, [socket]);
 
@@ -63,6 +92,56 @@ const Dashboard = () => {
     setClaimsPercentage(response.data.claims.percentageChange);
   }
 
+  // fetch all jobs Activities (Notifications)
+  async function fetchAllJobsNotifications() {
+    const url = isDevelopment
+      ? "http://localhost:7000/api/notifications/jobs"
+      : `${import.meta.env.VITE_BACKEND_URL}api/notifications/jobs`;
+
+    const response = await getData(url, {
+      withCredentials: true,
+    });
+
+    setJobsNotifications(response.data);
+  }
+  // fetch all companies Activities (Notifications)
+  async function fetchAllCompanyNotifications() {
+    const url = isDevelopment
+      ? "http://localhost:7000/api/notifications/companies"
+      : `${import.meta.env.VITE_BACKEND_URL}api/notifications/companies`;
+
+    const response = await getData(url, {
+      withCredentials: true,
+    });
+
+    setCompanyNotifications(response.data);
+  }
+
+  // fetch all user Activities (Notifications)
+  async function fetchAllUserNotifications() {
+    const url = isDevelopment
+      ? "http://localhost:7000/api/notifications/users"
+      : `${import.meta.env.VITE_BACKEND_URL}api/notifications/users`;
+
+    const response = await getData(url, {
+      withCredentials: true,
+    });
+
+    setUserNotifications(response.data);
+  }
+  // fetch all user Activities (Notifications)
+  async function fetchAllClaimsNotifications() {
+    const url = isDevelopment
+      ? "http://localhost:7000/api/notifications/claims"
+      : `${import.meta.env.VITE_BACKEND_URL}api/notifications/claims`;
+
+    const response = await getData(url, {
+      withCredentials: true,
+    });
+
+    setClaimsNotifications(response.data);
+  }
+
   // fetch user stats for charts
   async function fetchAllCharts() {
     const url = isDevelopment
@@ -73,14 +152,40 @@ const Dashboard = () => {
     });
 
     setAllCharts(response.data);
-
-    console.log(response);
   }
+
+  async function fetchTotalActiveUsers() {
+    const url = isDevelopment
+      ? "http://localhost:7000/api/admin/activeusers"
+      : `${import.meta.env.VITE_BACKEND_URL}api/admin/activeusers`;
+    const response = await getData(url, {
+      withCredentials: true,
+    });
+
+    const pieData = [
+      { name: "Active Users", count: response.data[0].totalActiveUser },
+      { name: "InActive Users", count: response.data[0].totalInActiveUsers },
+    ];
+
+    setActiveUsers(pieData);
+  }
+
+  const openModal = (data) => {
+    setModalData(data);
+    setIsModalOpen(true);
+  };
 
   // use effect for fetching the data
   useEffect(() => {
     fetchAllStats();
     fetchAllCharts();
+    fetchTotalActiveUsers();
+
+    // notifications
+    fetchAllUserNotifications();
+    fetchAllJobsNotifications();
+    fetchAllCompanyNotifications();
+    fetchAllClaimsNotifications();
   }, []);
 
   const hanldeAside = () => {
@@ -93,7 +198,7 @@ const Dashboard = () => {
           isAsideOpen={isAsideOpen}
           onclose={() => setIsAsideOpen(false)}
         />
-        <section className="w-full  min-h-screen md:h-screen md:overflow-y-scroll bg-purple-50 text-slate-900">
+        <section className="w-full  min-h-screen md:h-screen md:overflow-y-scroll text-slate-900">
           <div className="px-6 md:px-10 mt-5">
             <div className="block md:hidden">
               <Menu onClick={hanldeAside} />
@@ -216,7 +321,7 @@ const Dashboard = () => {
 
               <div className="lg:flex gap-5 block">
                 {/* Charts  */}
-                <div className="mt-5 rounded-lg bg-white p-5 shadow-md  w-full lg:w-3/5 h-[350px]">
+                <div className="mt-5 rounded-lg bg-white p-5 shadow-md  w-full lg:w-3/5 h-[350px] border-b-4 border-purple-800">
                   {allcharts && (
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={allcharts || []}>
@@ -285,13 +390,14 @@ const Dashboard = () => {
                             fill: "#fff",
                           }}
                         />
+                        <Legend />
                       </LineChart>
                     </ResponsiveContainer>
                   )}
                 </div>
 
                 {/* Live Popup Section */}
-                <div className="bg-white rounded-md mt-5 px-5 py-5 w-full lg:w-2/5 h-[350px]">
+                <div className=" rounded-md mt-5 px-5 py-5 w-full lg:w-2/5 h-[350px] shadow border-b-4 border-purple-800">
                   <div>
                     <h1 className="text-xl font-medium mb-10">
                       Recent Activities
@@ -300,60 +406,189 @@ const Dashboard = () => {
 
                   <div className="text-sm">
                     {/* user */}
-                    <div className="flex justify-between items-center shadow px-2 py-1 bg-[#f78d02] text-white rounded">
+                    <div className="flex justify-between items-center shadow px-2 py-1 bg-[#E3F2FD] text-slate-900 rounded">
                       <div className="mb-1">
                         <h1>Users</h1>
-                        <p>name of the user</p>
+                        <p>
+                          {userNotifications?.[userNotifications.length - 1]
+                            ?.meta?.userEmail || "Not such a activity"}
+                        </p>
                       </div>
 
                       <div>
-                        <button className="px-5 py-1 bg-white text-slate-950 rounded-md  cursor-pointer">
+                        <button
+                          onClick={() => openModal(userNotifications)}
+                          className="px-5 py-1 bg-[#2196F3] text-white rounded-md  cursor-pointer"
+                        >
                           View
                         </button>
                       </div>
                     </div>
 
                     {/* Company */}
-                    <div className="flex justify-between px-2 py-1 shadow items-center bg-blue-600 text-white my-2 rounded-md">
+                    <div className="flex justify-between px-2 py-1 shadow items-center bg-[#E8F5E9] text-slate-900 my-2 rounded-md">
                       <div>
                         <h1>Company</h1>
-                        <p>Name of the company</p>
+                        <p>
+                          {companyNotifications?.[
+                            companyNotifications.length - 1
+                          ]?.meta?.companyEmail || "Not such a activity"}
+                        </p>
                       </div>
 
                       <div>
-                        <button className="px-5 py-1 bg-white text-slate-950 rounded-md cursor-pointer">
+                        <button
+                          onClick={() => openModal(companyNotifications)}
+                          className="px-5 py-1 bg-[#4CAF50] text-white rounded-md cursor-pointer"
+                        >
                           View
                         </button>
                       </div>
                     </div>
 
                     {/* jobs */}
-                    <div className="flex justify-between items-center shadow px-2 py-1 my-2 bg-sky-600 text-white">
+                    <div className="flex justify-between items-center shadow px-2 py-1 my-2 bg-[#FFF3E0] text-slate-900">
                       <div>
                         <h1>Jobs</h1>
-                        <p>name of the jobs</p>
+
+                        <p>
+                          {
+                            jobsNotifications?.[jobsNotifications.length - 1]
+                              ?.meta?.jobTitle
+                          }
+                        </p>
                       </div>
 
                       <div>
-                        <button className="px-5 py-1 bg-white text-slate-950 rounded-md cursor-pointer">
+                        <button
+                          onClick={() => openModal(jobsNotifications)}
+                          className="px-5 py-1 bg-[#FF9800] text-white rounded-md cursor-pointer"
+                        >
                           View
                         </button>
                       </div>
                     </div>
 
                     {/* claims */}
-                    <div className="flex justify-between items-center px-2 py-1 my-2 bg-red-600 text-white">
+                    <div className="flex justify-between items-center px-2 py-1 my-2 bg-[#FFEBEE] text-slate-900">
                       <div>
                         <h1>Claims</h1>
-                        <p>username of the user</p>
+                        <p>
+                          {claimsNotifications?.[claimsNotifications.length - 1]
+                            ?.message || "Not such a activity"}
+                        </p>
                       </div>
 
                       <div>
-                        <button className="px-5 py-1 bg-white text-slate-950 rounded-md cursor-pointer">
+                        <button
+                          onClick={() => openModal(claimsNotifications)}
+                          className="px-5 py-1 bg-[#F44336] text-white rounded-md cursor-pointer"
+                        >
                           View
                         </button>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <AdminModel
+                  isModalOpen={isModalOpen}
+                  onModalClose={() => setIsModalOpen(false)}
+                  data={modalData || "No data provided"}
+                />
+              </div>
+
+              <div className="xl:flex gap-5 block">
+                <div className="mt-10">
+                  {/* User Chart Heading */}
+                  <div>
+                    <h1 className="text-xl font-medium underline underline-offset-8">
+                      Total Active Uses
+                    </h1>
+                    <p className="text-sm mt-2 text-gray-500">
+                      Total{" "}
+                      <span className="font-bold">
+                        {activeUsers?.reduce((a, b) => a + b.count, 0)}
+                      </span>{" "}
+                      Users
+                    </p>
+                  </div>
+
+                  {/* Chart OF Active and InActive Users */}
+                  <div className="mt-4 w-full lg:w-[550px] h-[350px] bg-white rounded-md shadow border-b-4 border-purple-800">
+                    <ResponsiveContainer width={"100%"} height={"100%"}>
+                      <PieChart>
+                        <Pie
+                          data={activeUsers}
+                          dataKey={"count"}
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          innerRadius={60}
+                          label
+                          paddingAngle={5}
+                          fill="#8884d8"
+                        >
+                          {activeUsers?.map((entry) => (
+                            <Cell
+                              key={`ceil-${entry.name}`}
+                              fill={`${
+                                entry.name == "Active Users"
+                                  ? "#039612"
+                                  : "#960303"
+                              }`}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#fff",
+                            borderRadius: "30px",
+                            border: "1px solid #ddd",
+                          }}
+                        />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Recent Claims  */}
+                <div className="mt-10 w-full">
+                  {/* Recent Claims Heading */}
+                  <div>
+                    <h1 className="mb-11 text-xl font-medium underline underline-offset-8">
+                      Recent Claims
+                    </h1>
+                  </div>
+
+                  {/* Claims data */}
+                  <div className="shadow rounded-md mt-4 box-border min-h-[350px]  xl:h-[350px] border-b-4 border-purple-800 overflow-auto scroll-smooth scroll-sm transition duration-150 ease-in">
+                    {claimsNotifications?.map((data) => (
+                      <div
+                        key={data._id}
+                        className="bg-[#F3E5F5] text-[#9C27B0] my-4 mx-5 px-4 rounded-md shadow py-1 text-sm"
+                      >
+                        <h3 className="bold border-b-4 border-[#9C27B0] rounded-md px-4 text-xl">
+                          {data.meta.companyName}
+                        </h3>
+
+                        <div className="flex gap-5 mt-2 ">
+                          <div className="flex gap-3">
+                            <MailCheck size={16} />
+                            <p>{data.meta.companyEmail}</p>
+                          </div>
+                          <div className="md:ml-10 flex gap-3">
+                            <Phone size={16} />
+                            <p>{data.meta.companyPhone}</p>
+                          </div>
+                        </div>
+
+                        {/* date of the claim */}
+                        <p className="mt-2">{data.createdAt.split("T")[0]}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
