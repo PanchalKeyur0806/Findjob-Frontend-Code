@@ -65,11 +65,6 @@ const RecentJobs = () => {
           </div>
         </div>
 
-        {getMessage && (
-          <div className="px-5 py-2 my-3  bg-green-700 text-white rounded-lg">
-            <p>{getMessage}</p>
-          </div>
-        )}
         {getError && (
           <div className="px-5 py-2 my-3  bg-red-700 text-white rounded-lg">
             <p>{getError}</p>

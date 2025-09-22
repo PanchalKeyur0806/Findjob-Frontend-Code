@@ -328,11 +328,11 @@ const Dashboard = () => {
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis
                           dataKey="date"
-                          tick={{ fontSize: 12, fill: "#6b7280" }}
+                          tick={{ fontSize: 11, fill: "#6b7280" }}
                           tickMargin={15}
                         />
                         <YAxis
-                          tick={{ fontSize: 12, fill: "#6b7280" }}
+                          tick={{ fontSize: 11, fill: "#6b7280" }}
                           allowDecimals={false}
                         />
                         <Tooltip
@@ -346,11 +346,11 @@ const Dashboard = () => {
                           type="bump"
                           dataKey="user"
                           stroke="#f78d02"
-                          strokeWidth={5}
+                          strokeWidth={2}
                           dot={{
-                            r: 4,
+                            r: 2,
                             stroke: "#f78d02",
-                            strokeWidth: 4,
+                            strokeWidth: 2,
                             fill: "#fff",
                           }}
                         />
@@ -358,11 +358,11 @@ const Dashboard = () => {
                           type="bump"
                           dataKey="companies"
                           stroke="#0213f7"
-                          strokeWidth={5}
+                          strokeWidth={2}
                           dot={{
-                            r: 4,
+                            r: 2,
                             stroke: "#0213f7",
-                            strokeWidth: 4,
+                            strokeWidth: 2,
                             fill: "#fff",
                           }}
                         />
@@ -370,11 +370,11 @@ const Dashboard = () => {
                           type="bump"
                           dataKey="jobs"
                           stroke="#0213f7"
-                          strokeWidth={5}
+                          strokeWidth={2}
                           dot={{
-                            r: 4,
+                            r: 2,
                             stroke: "#0213f7",
-                            strokeWidth: 4,
+                            strokeWidth: 2,
                             fill: "#fff",
                           }}
                         />
@@ -382,11 +382,11 @@ const Dashboard = () => {
                           type="bump"
                           dataKey="claims"
                           stroke="#a80000"
-                          strokeWidth={5}
+                          strokeWidth={2}
                           dot={{
-                            r: 4,
+                            r: 2,
                             stroke: "#a80000",
-                            strokeWidth: 4,
+                            strokeWidth: 2,
                             fill: "#fff",
                           }}
                         />

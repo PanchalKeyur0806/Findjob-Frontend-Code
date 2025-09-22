@@ -19,9 +19,9 @@ const AdminModel = ({ isModalOpen, onModalClose, data }) => {
 
   return (
     <div className="fixed z-50 inset-0 flex items-center justify-center bg-black/60 ">
-      <div className="bg-white max-w-[800px] h-[300px]  overflow-y-scroll scroll-smooth shadow-lg rounded-lg relative">
+      <div className="bg-white md:max-w-[800px] h-[300px] w-[95%] mx-auto  overflow-y-scroll scroll-smooth shadow-lg rounded-lg relative">
         {/* close button */}
-        <div className="sticky h-10 top-0 flex justify-end bg-white border-b-2 border-b-purple-800 ">
+        <div className="sticky h-10 top-0 flex justify-end bg-white  ">
           <button
             onClick={onModalClose}
             className=" hover:bg-gray-200 px-1 my-1 rounded-full cursor-pointer"
