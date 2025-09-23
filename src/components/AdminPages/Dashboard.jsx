@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import Aside from "../Parts/Aside/Aside";
 import { MailCheck, Menu, Phone, Users } from "lucide-react";
 import useGetData from "../../Hooks/FetchGetDataHook";
@@ -15,9 +15,9 @@ import {
   Pie,
   PieChart,
   Cell,
-  Label,
 } from "recharts";
-import AdminModel from "../Parts/AdminModel/AdminModel";
+
+const AdminModel = lazy(() => import("../Parts/AdminModel/AdminModel"));
 
 const Dashboard = () => {
   const [isAsideOpen, setIsAsideOpen] = useState(false);
@@ -39,6 +39,9 @@ const Dashboard = () => {
   const socket = useSocket();
 
   const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
+  const baseUrl = isDevelopment
+    ? "http://localhost:7000/"
+    : import.meta.env.VITE_BACKEND_URL;
 
   // useEffect for sockets
   useEffect(() => {
@@ -77,99 +80,6 @@ const Dashboard = () => {
     };
   }, [socket]);
 
-  // fetch all stats
-  async function fetchAllStats() {
-    const url = isDevelopment
-      ? "http://localhost:7000/api/admin/allstats"
-      : import.meta.env.VITE_BACKEND_URL + "api/admin/allstats";
-    const response = await getData(url, {
-      withCredentials: true,
-    });
-
-    setUserPercentage(response.data.users.percentageChange);
-    setJobsPercentage(response.data.jobs.percentageChange);
-    setCompaniesPercentage(response.data.companies.percentageChange);
-    setClaimsPercentage(response.data.claims.percentageChange);
-  }
-
-  // fetch all jobs Activities (Notifications)
-  async function fetchAllJobsNotifications() {
-    const url = isDevelopment
-      ? "http://localhost:7000/api/notifications/jobs"
-      : `${import.meta.env.VITE_BACKEND_URL}api/notifications/jobs`;
-
-    const response = await getData(url, {
-      withCredentials: true,
-    });
-
-    setJobsNotifications(response.data);
-  }
-  // fetch all companies Activities (Notifications)
-  async function fetchAllCompanyNotifications() {
-    const url = isDevelopment
-      ? "http://localhost:7000/api/notifications/companies"
-      : `${import.meta.env.VITE_BACKEND_URL}api/notifications/companies`;
-
-    const response = await getData(url, {
-      withCredentials: true,
-    });
-
-    setCompanyNotifications(response.data);
-  }
-
-  // fetch all user Activities (Notifications)
-  async function fetchAllUserNotifications() {
-    const url = isDevelopment
-      ? "http://localhost:7000/api/notifications/users"
-      : `${import.meta.env.VITE_BACKEND_URL}api/notifications/users`;
-
-    const response = await getData(url, {
-      withCredentials: true,
-    });
-
-    setUserNotifications(response.data);
-  }
-  // fetch all user Activities (Notifications)
-  async function fetchAllClaimsNotifications() {
-    const url = isDevelopment
-      ? "http://localhost:7000/api/notifications/claims"
-      : `${import.meta.env.VITE_BACKEND_URL}api/notifications/claims`;
-
-    const response = await getData(url, {
-      withCredentials: true,
-    });
-
-    setClaimsNotifications(response.data);
-  }
-
-  // fetch user stats for charts
-  async function fetchAllCharts() {
-    const url = isDevelopment
-      ? "http://localhost:7000/api/admin/allcharts"
-      : import.meta.env.VITE_BACKEND_URL + "api/admin/allcharts";
-    const response = await getData(url, {
-      withCredentials: true,
-    });
-
-    setAllCharts(response.data);
-  }
-
-  async function fetchTotalActiveUsers() {
-    const url = isDevelopment
-      ? "http://localhost:7000/api/admin/activeusers"
-      : `${import.meta.env.VITE_BACKEND_URL}api/admin/activeusers`;
-    const response = await getData(url, {
-      withCredentials: true,
-    });
-
-    const pieData = [
-      { name: "Active Users", count: response.data[0].totalActiveUser },
-      { name: "InActive Users", count: response.data[0].totalInActiveUsers },
-    ];
-
-    setActiveUsers(pieData);
-  }
-
   const openModal = (data) => {
     setModalData(data);
     setIsModalOpen(true);
@@ -177,15 +87,58 @@ const Dashboard = () => {
 
   // use effect for fetching the data
   useEffect(() => {
-    fetchAllStats();
-    fetchAllCharts();
-    fetchTotalActiveUsers();
+    async function fetchAllData() {
+      try {
+        const [stats, charts, activeUsers, users, jobs, companies, claims] =
+          await Promise.all([
+            getData(`${baseUrl}api/admin/allstats`, { withCredentials: true }),
+            getData(`${baseUrl}api/admin/allcharts`, { withCredentials: true }),
+            getData(`${baseUrl}api/admin/activeusers`, {
+              withCredentials: true,
+            }),
+            getData(`${baseUrl}api/notifications/users`, {
+              withCredentials: true,
+            }),
+            getData(`${baseUrl}api/notifications/jobs`, {
+              withCredentials: true,
+            }),
+            getData(`${baseUrl}api/notifications/companies`, {
+              withCredentials: true,
+            }),
+            getData(`${baseUrl}api/notifications/claims`, {
+              withCredentials: true,
+            }),
+          ]);
 
-    // notifications
-    fetchAllUserNotifications();
-    fetchAllJobsNotifications();
-    fetchAllCompanyNotifications();
-    fetchAllClaimsNotifications();
+        // get all the stats
+        setUserPercentage(stats.data.users.percentageChange);
+        setJobsPercentage(stats.data.jobs.percentageChange);
+        setCompaniesPercentage(stats.data.companies.percentageChange);
+        setClaimsPercentage(stats.data.claims.percentageChange);
+
+        // get all the charts
+        setAllCharts(charts.data);
+
+        // active users
+        setActiveUsers([
+          { name: "Active Users", count: activeUsers.data[0].totalActiveUser },
+          {
+            name: "InActive Users",
+            count: activeUsers.data[0].totalInActiveUsers,
+          },
+        ]);
+
+        // fetch all the notifications
+        setUserNotifications(users.data);
+        setJobsNotifications(jobs.data);
+        setCompanyNotifications(companies.data);
+        setClaimsNotifications(claims.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchAllData();
   }, []);
 
   const hanldeAside = () => {
@@ -491,11 +444,19 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                <AdminModel
-                  isModalOpen={isModalOpen}
-                  onModalClose={() => setIsModalOpen(false)}
-                  data={modalData || "No data provided"}
-                />
+                <Suspense
+                  fallback={
+                    <div className="flex items-center h-screen justify-center text-3xl">
+                      Loading...
+                    </div>
+                  }
+                >
+                  <AdminModel
+                    isModalOpen={isModalOpen}
+                    onModalClose={() => setIsModalOpen(false)}
+                    data={modalData || "No data provided"}
+                  />
+                </Suspense>
               </div>
 
               <div className="xl:flex gap-5 block">

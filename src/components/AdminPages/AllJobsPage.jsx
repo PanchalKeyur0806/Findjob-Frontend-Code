@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { io } from "socket.io-client";
 import useGetData from "../../Hooks/FetchGetDataHook";
 import {
   IndianRupee,
@@ -13,17 +12,8 @@ import {
 import Aside from "../Parts/Aside/Aside";
 
 const AllJobsPage = () => {
-  // const socket = useMemo(
-  //   () =>
-  //     io("http://localhost:7000", {
-  //       withCredentials: true,
-  //     }),
-  //   []
-  // );
-
   const [isAsideOpen, setIsAsideOpen] = useState(false);
   const [jobData, setJobData] = useState(null);
-  const [newCreatedJob, setNewCreatedJob] = useState(null);
   const [searchField, setSearchField] = useState(null);
   const [locationField, setLocationField] = useState(null);
   const [employeeType, setEmployeeType] = useState(null);
@@ -32,7 +22,7 @@ const AllJobsPage = () => {
   const [totalJobs, setTotalJobs] = useState(0);
   const [numOfPages, setNumOfPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [getData, getLoading, getMessage, getError] = useGetData();
+  const [getData, getLoading] = useGetData();
 
   const navigate = useNavigate();
 
@@ -88,6 +78,20 @@ const AllJobsPage = () => {
     });
   };
 
+  const pageButtons = useMemo(() => {
+    const buttons = [];
+    const start = Math.max(1, currentPage - 2);
+    for (let i = 0; i < numOfPages; i++) {
+      const pageNumber = start + i;
+      if (pageNumber > numOfPages) break;
+      buttons.push(pageNumber);
+    }
+
+    return buttons;
+  }, [currentPage, numOfPages]);
+
+  console.log(pageButtons);
+
   // fetch the data from api
   useEffect(() => {
     async function fetchData() {
@@ -113,6 +117,7 @@ const AllJobsPage = () => {
       </div>
     );
   }
+
   // Go to view jobs page
   const gotoJobDetails = (jobId) => {
     navigate(`/job/${jobId}`);
@@ -151,13 +156,6 @@ const AllJobsPage = () => {
           onclose={() => setIsAsideOpen(false)}
         />
         <div className="min-h-screen md:h-screen w-full font-poppins  md:overflow-auto">
-          {newCreatedJob &&
-            setTimeout(() => {
-              <div className=" px-5 py-2 font-medium">
-                <p>{newCreatedJob}</p>
-              </div>;
-            }, 1000)}
-
           {/* menu for sidebar */}
           <div className="block md:hidden w-[95%] mx-auto px-7 mt-5">
             <Menu onClick={hanldeAside} />
@@ -348,24 +346,19 @@ const AllJobsPage = () => {
 
                 {/* Page numbers */}
                 <div className="flex gap-1">
-                  {[...Array(Math.min(5, numOfPages))].map((_, index) => {
-                    const pageNumber = Math.max(1, currentPage - 2) + index;
-                    if (pageNumber > numOfPages) return null;
-
-                    return (
-                      <button
-                        key={pageNumber}
-                        onClick={() => handlePageChange(pageNumber)}
-                        className={`px-3 py-2 rounded ${
-                          currentPage === pageNumber
-                            ? "bg-purple-800 text-white"
-                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        }`}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
-                  })}
+                  {pageButtons?.map((pageNumber) => (
+                    <button
+                      key={pageNumber}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`px-3 py-2 rounded ${
+                        currentPage === pageNumber
+                          ? "bg-purple-800 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  ))}
                 </div>
 
                 <button
