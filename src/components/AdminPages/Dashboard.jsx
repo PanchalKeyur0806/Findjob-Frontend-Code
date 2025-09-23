@@ -16,8 +16,9 @@ import {
   PieChart,
   Cell,
 } from "recharts";
+import LoadingBar from "react-top-loading-bar";
 
-const AdminModel = lazy(() => import("../Parts/AdminModel/AdminModel"));
+const AdminModel = lazy(() => import("../Parts/Admin/AdminModel"));
 
 const Dashboard = () => {
   const [isAsideOpen, setIsAsideOpen] = useState(false);
@@ -34,7 +35,8 @@ const Dashboard = () => {
   const [allcharts, setAllCharts] = useState();
   const [activeUsers, setActiveUsers] = useState(null);
 
-  const [getData] = useGetData();
+  const [getData, getLoading, getMessage, getError, progress, setProgress] =
+    useGetData();
 
   const socket = useSocket();
 
@@ -146,6 +148,7 @@ const Dashboard = () => {
   };
   return (
     <>
+      <LoadingBar color="#8b5cf6" progress={progress} />
       <main className="flex flex-row font-poppins  ">
         <Aside
           isAsideOpen={isAsideOpen}

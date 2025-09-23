@@ -22,6 +22,7 @@ import Users from "./components/AdminPages/Users.jsx";
 import AdminLayout from "./AdminLayout.jsx";
 import Dashboard from "./components/AdminPages/Dashboard.jsx";
 import { SocketProvider } from "./Contexts/socketContext.jsx";
+import Company from "./components/AdminPages/Company.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -42,6 +43,7 @@ const router = createBrowserRouter(
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="jobs" element={<AllJobsPage />} />
         <Route path="users" element={<Users />} />
+        <Route path="companies" element={<Company />} />
       </Route>
     </>
   )

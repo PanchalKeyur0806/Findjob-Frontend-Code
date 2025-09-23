@@ -10,6 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import Aside from "../Parts/Aside/Aside";
+import LoadingBar from "react-top-loading-bar";
 
 const AllJobsPage = () => {
   const [isAsideOpen, setIsAsideOpen] = useState(false);
@@ -22,7 +23,8 @@ const AllJobsPage = () => {
   const [totalJobs, setTotalJobs] = useState(0);
   const [numOfPages, setNumOfPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [getData, getLoading] = useGetData();
+  const [getData, getLoading, getMessage, getError, progress, setProgress] =
+    useGetData();
 
   const navigate = useNavigate();
 
@@ -110,14 +112,6 @@ const AllJobsPage = () => {
     fetchData();
   }, [searchParams]);
 
-  if (getLoading) {
-    return (
-      <div className="h-screen flex justify-center items-center text-4xl font-medium font-poppins">
-        <h1>Loading...</h1>
-      </div>
-    );
-  }
-
   // Go to view jobs page
   const gotoJobDetails = (jobId) => {
     navigate(`/job/${jobId}`);
@@ -150,6 +144,7 @@ const AllJobsPage = () => {
 
   return (
     <>
+      <LoadingBar color="#8b5cf6" progress={progress} />
       <section className="flex flex-row">
         <Aside
           isAsideOpen={isAsideOpen}
