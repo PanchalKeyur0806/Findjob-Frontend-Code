@@ -160,8 +160,8 @@ const JobPage = () => {
           <h1 className="text-4xl">Jobs</h1>
         </div>
 
-        <div className="max-w-[1300px] w-[95%] mx-auto flex gap-5">
-          <aside className="hidden md:block md:w-1/4 bg-purple-200 rounded-2xl p-4">
+        <div className="max-w-[1300px] w-[95%] mx-auto md:flex gap-5">
+          <aside className=" md:w-1/4 bg-white shadow rounded-2xl p-4 md:sticky top-5 h-fit mb-4">
             <form onSubmit={handleSearch}>
               {/* Search by Job Title */}
               <div className="flex flex-col justify-center mb-4">
@@ -196,7 +196,7 @@ const JobPage = () => {
             </form>
 
             {/* Employee Type Filter */}
-            <div className="mb-4">
+            <div className="mb-4 mt-7">
               <h1 className="my-1 font-medium">Employee Type</h1>
               <div className="space-y-2">
                 {["all", "fulltime", "parttime", "contract", "internship"].map(
@@ -222,7 +222,7 @@ const JobPage = () => {
             </div>
 
             {/* Sorting Options */}
-            <div className="mb-4">
+            <div className="mb-4 mt-7">
               <h1 className="my-1 font-medium">Sort By</h1>
               <div className="space-y-2">
                 {[
@@ -254,13 +254,13 @@ const JobPage = () => {
             {/* Clear Filters Button */}
             <button
               onClick={clearFilters}
-              className="w-full bg-gray-600 text-white px-5 py-2 rounded hover:bg-gray-700 transition duration-200"
+              className="w-full  bg-gray-600 text-white mt-7 cursor-pointer px-5 py-2 rounded hover:bg-gray-700 transition duration-200"
             >
               Clear Filters
             </button>
           </aside>
 
-          <section className="w-[95%] md:w-3/4 mx-auto">
+          <section className="w-[95%] md:w-3/4 mx-auto ">
             {getError && (
               <div className="px-5 py-2 my-3 bg-red-700 text-white rounded-lg">
                 <p>{getError}</p>
@@ -301,7 +301,7 @@ const JobPage = () => {
                 data.map((job) => (
                   <div
                     key={job._id}
-                    className="mx-3 my-5 px-3 py-2 shadow rounded-lg "
+                    className="mx-3 my-10 px-3 py-2 shadow rounded-lg border-b-4 border-purple-800"
                   >
                     <div>
                       {/* Job Info and add to later menu */}
