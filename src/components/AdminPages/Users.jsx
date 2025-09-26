@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Aside from "../Parts/Aside/Aside";
-import { Menu, PhoneCall } from "lucide-react";
+import { Menu, PhoneCall, Search } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import useGetData from "../../Hooks/FetchGetDataHook";
-import { io } from "socket.io-client";
 import LoadingBar from "react-top-loading-bar";
 
 const Users = () => {
+  const [searchOpen, setSearchOpen] = useState(false);
   const [isAsideOpen, setIsAsideOpen] = useState(false);
 
   const [searchField, setSearchField] = useState(null);
@@ -52,7 +52,6 @@ const Users = () => {
         withCredentials: true,
       });
 
-      console.log(response);
       setUserData(response.data.users);
       setCurrentPage(response.data.currentPage);
       setNumOfUsers(response.data.numOfPages);
@@ -62,13 +61,9 @@ const Users = () => {
     fetchData();
   }, [searchParams]);
 
-  if (getLoading) {
-    return (
-      <div className="h-screen flex justify-center items-center text-4xl font-medium font-poppins">
-        <h1>Loading...</h1>
-      </div>
-    );
-  }
+  const handleSearch = () => {
+    setSearchOpen(!searchOpen);
+  };
 
   // handle submit
   const handleAside = () => {
@@ -142,7 +137,7 @@ const Users = () => {
           isAsideOpen={isAsideOpen}
           onclose={() => setIsAsideOpen(false)}
         />
-        <section className="h-screen  w-full mx-auto overflow-auto">
+        <section className="h-screen  w-full mx-auto overflow-y-auto">
           <div className="px-10 block md:hidden mt-5">
             <button>
               <Menu onClick={handleAside} />
@@ -165,52 +160,85 @@ const Users = () => {
             </p>
           </div>
 
-          {/* Searching functionality */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-10">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="search">Searcy By User Name</label>
-              <input
-                type="search"
-                name="search"
-                id="search"
-                className="px-2 py-2 outline rounded-md"
-                onChange={(e) => setSearchField(e.target.value)}
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="email">Search By Email</label>
-              <input
-                type="search"
-                name="email"
-                id="email"
-                className="px-2 py-2 outline rounded-md"
-                onChange={(e) => setEmailField(e.target.value)}
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <p>Select Role</p>
-              <select
-                name="roles"
-                id="roles"
-                className="outline rounded-md px-5 py-2"
-                onChange={(e) => setRoles(e.target.value)}
-              >
-                <option value="all">All</option>
-                <option value="recruiter">Recruiter</option>
-                <option value="candidate">Candidate</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-          </div>
-          <div className="px-10 my-5">
-            <button
-              onClick={handleParams}
-              className="px-10 py-2 text-white bg-purple-800 rounded hover:bg-purple-900 transition duration-150 ease-in-out"
+          <div className="px-10 my-10">
+            <h1
+              className={`rounded-lg shadow size-30 cursor-pointer flex flex-col gap-3 items-center justify-center transition duration-100 ease-in-out ${
+                searchOpen
+                  ? "bg-purple-800 text-white "
+                  : "bg-white text-slate-900"
+              }`}
+              onClick={handleSearch}
             >
-              Filter
-            </button>
+              <span>
+                {" "}
+                <Search />
+              </span>
+              <span>Search</span>
+            </h1>
+
+            <div></div>
+          </div>
+
+          <div className="my-10 mx-10">
+            {searchOpen && (
+              <div className="max-w-[700px] shadow rounded-lg px-5 py-2">
+                <h1 className="text-xl font-medium my-4">Search</h1>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-3">
+                    <label htmlFor="search">Search</label>
+                    <input
+                      type="search"
+                      name="search"
+                      id="search"
+                      onChange={(e) => setSearchField(e.target.value)}
+                      className="focus:outline-none bg-gray-100 px-4 py-1 rounded-md shadow text-gray-500"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    <label htmlFor="email">Email</label>
+                    <input
+                      type="search"
+                      name="email"
+                      id="email"
+                      onChange={(e) => setEmailField(e.target.value)}
+                      className="focus:outline-none bg-gray-100 px-4 py-1 rounded-md shadow text-gray-500"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    <p>Select Role</p>
+                    <select
+                      name="roles"
+                      id="roles"
+                      onChange={(e) => setRoles(e.target.value)}
+                      className="bg-gray-100 text-gray-500 focus:outline-none rounded-md shadow px-4 py-1"
+                    >
+                      <option value="all">All</option>
+                      <option value="recruiter">Recruiter</option>
+                      <option value="candidate">Candidate</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-10 flex justify-end">
+                  <button
+                    onClick={handleParams}
+                    className="px-4 py-2 bg-purple-700 text-white rounded-md shadow transition duration-100 ease-in-out hover:bg-purple-900 cursor-pointer mx-3 transform active:scale-95 hover:scale-105"
+                  >
+                    Search
+                  </button>
+                  <button
+                    onClick={() => setSearchOpen(false)}
+                    className="px-4 py-2 bg-gray-100 text-slate-900 rounded-md shadow transition duration-100 ease-in-out hover:bg-gray-300 cursor-pointer mx-3 transform active:scale-95 hover:scale-105"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* function for showing all the users */}
@@ -372,9 +400,8 @@ const Users = () => {
 
               {/* Showing page number */}
               <div className="flex gap-4">
-                {[...Array(Math.min(5, numOfUsers))].map((_, index) => {
-                  const pageNumber = Math.max(1, numOfUsers - 2) + index;
-                  console.log("Page numbers is ", pageNumber);
+                {[...Array(Math.min(10, numOfUsers))].map((_, index) => {
+                  const pageNumber = Math.min(1, numOfUsers - 2) + index;
 
                   return (
                     <button

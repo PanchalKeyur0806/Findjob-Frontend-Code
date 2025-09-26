@@ -79,6 +79,14 @@ const AdminModel = ({ isModalOpen, onModalClose, data }) => {
                     </div>
                   </div>
                 )}
+
+                {data.createdAt && (
+                  <div className="mt-2 text-gray-700">
+                    <p>
+                      Date :- <span>{data.createdAt.split("T")[0]}</span>
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
         </div>

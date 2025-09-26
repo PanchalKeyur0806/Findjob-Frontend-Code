@@ -92,8 +92,6 @@ const AllJobsPage = () => {
     return buttons;
   }, [currentPage, numOfPages]);
 
-  console.log(pageButtons);
-
   // fetch the data from api
   useEffect(() => {
     async function fetchData() {

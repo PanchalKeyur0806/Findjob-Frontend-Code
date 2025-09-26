@@ -28,10 +28,10 @@ const Dashboard = () => {
   const [companiesPercentage, setCompaniesPercentage] = useState("");
   const [jobsPercentage, setJobsPercentage] = useState("");
   const [claimsPercentage, setClaimsPercentage] = useState("");
-  const [jobsNotifications, setJobsNotifications] = useState(null);
-  const [userNotifications, setUserNotifications] = useState(null);
-  const [companyNotifications, setCompanyNotifications] = useState(null);
-  const [claimsNotifications, setClaimsNotifications] = useState(null);
+  const [jobsNotifications, setJobsNotifications] = useState([]);
+  const [userNotifications, setUserNotifications] = useState([]);
+  const [companyNotifications, setCompanyNotifications] = useState([]);
+  const [claimsNotifications, setClaimsNotifications] = useState([]);
   const [allcharts, setAllCharts] = useState();
   const [activeUsers, setActiveUsers] = useState(null);
 
@@ -73,12 +73,17 @@ const Dashboard = () => {
       setClaimsNotifications((prev) => [...prev, data]);
     });
 
+    socket.on("charts_updated", (data) => {
+      setAllCharts(data);
+    });
+
     return () => {
       socket.off("job_created");
       socket.off("connect");
       socket.off("claim_created");
       socket.off("user_created");
       socket.off("company_created");
+      socket.off("charts_updated");
     };
   }, [socket]);
 
@@ -366,8 +371,8 @@ const Dashboard = () => {
                       <div className="mb-1">
                         <h1>Users</h1>
                         <p>
-                          {userNotifications?.[userNotifications.length - 1]
-                            ?.meta?.userEmail || "Not such a activity"}
+                          {userNotifications?.[0]?.meta?.userEmail ||
+                            "Not such a activity"}
                         </p>
                       </div>
 
@@ -386,9 +391,8 @@ const Dashboard = () => {
                       <div>
                         <h1>Company</h1>
                         <p>
-                          {companyNotifications?.[
-                            companyNotifications.length - 1
-                          ]?.meta?.companyEmail || "Not such a activity"}
+                          {companyNotifications?.[0]?.meta?.companyEmail ||
+                            "Not such a activity"}
                         </p>
                       </div>
 
@@ -407,12 +411,7 @@ const Dashboard = () => {
                       <div>
                         <h1>Jobs</h1>
 
-                        <p>
-                          {
-                            jobsNotifications?.[jobsNotifications.length - 1]
-                              ?.meta?.jobTitle
-                          }
-                        </p>
+                        <p>{jobsNotifications?.[0]?.meta?.jobTitle}</p>
                       </div>
 
                       <div>
@@ -430,8 +429,8 @@ const Dashboard = () => {
                       <div>
                         <h1>Claims</h1>
                         <p>
-                          {claimsNotifications?.[claimsNotifications.length - 1]
-                            ?.message || "Not such a activity"}
+                          {claimsNotifications?.[0]?.message ||
+                            "Not such a activity"}
                         </p>
                       </div>
 
@@ -529,7 +528,7 @@ const Dashboard = () => {
 
                   {/* Claims data */}
                   <div className="shadow rounded-md mt-4 box-border min-h-[350px]  xl:h-[350px] border-b-4 border-purple-800 overflow-auto scroll-smooth scroll-sm transition duration-150 ease-in">
-                    {claimsNotifications?.map((data) => (
+                    {claimsNotifications?.slice(0, 5)?.map((data) => (
                       <div
                         key={data._id}
                         className="bg-[#F3E5F5] text-[#9C27B0] my-4 mx-5 px-4 rounded-md shadow py-1 text-sm"

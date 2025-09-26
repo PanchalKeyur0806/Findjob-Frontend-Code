@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { TbWorldWww } from "react-icons/tb";
 import { IoIosCall } from "react-icons/io";
 import { GoDot } from "react-icons/go";
@@ -7,9 +7,10 @@ import Aside from "../Parts/Aside/Aside";
 import { useSearchParams } from "react-router-dom";
 import useGetData from "../../Hooks/FetchGetDataHook";
 import LoadingBar from "react-top-loading-bar";
-import { Dot, Eye, Mail, Trash } from "lucide-react";
+import { Dot, Eye, Mail, Menu, Search, Trash } from "lucide-react";
 
 const Company = () => {
+  const [searchOpen, setSearchOpen] = useState(false);
   const [isAsideOpen, setIsAsideOpen] = useState(false);
   const [companyData, setCompanyData] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -69,11 +70,14 @@ const Company = () => {
       setTotalCompanies(response.data.totalDocs);
       setCurrentPage(response.data.page);
       setCompanyData(response.data.companies);
-      console.log(response);
     }
 
     fetchData();
   }, [searchParams]);
+
+  const hanldeAside = () => {
+    setIsAsideOpen(!isAsideOpen);
+  };
 
   const handleParams = (e) => {
     e.preventDefault();
@@ -84,6 +88,10 @@ const Company = () => {
     updateParams({ email, name });
   };
 
+  const handlePageChange = (page) => {
+    updateParams({ name, email, page: page });
+  };
+
   const handleName = (e) => {
     setNameField(e.target.value);
   };
@@ -91,6 +99,25 @@ const Company = () => {
   const handleEmail = (e) => {
     setEmailField(e.target.value);
   };
+
+  const handleSearchOpen = () => {
+    setSearchOpen(!searchOpen);
+  };
+
+  const pageButtons = useMemo(() => {
+    if (totalPages <= 1) return [1];
+
+    const buttons = [];
+    const start = Math.max(1, currentPage - 2);
+
+    for (let i = 0; i < totalPages; i++) {
+      const pageNumber = start + i;
+      if (pageNumber > totalPages) break;
+      buttons.push(pageNumber);
+    }
+
+    return buttons;
+  }, [currentPage, totalPages]);
 
   function getColor(data) {
     switch (data) {
@@ -115,7 +142,10 @@ const Company = () => {
           isAsideOpen={isAsideOpen}
           onclose={() => setIsAsideOpen(false)}
         />
-        <section className="px-5 md:px-10 pt-10 w-full overflow-x-scroll overflow-y-scroll">
+        <section className="px-5 md:px-10 pt-10 w-full h-screen overflow-y-scroll">
+          <div className="block md:hidden">
+            <Menu onClick={hanldeAside} />
+          </div>
           {/* Heading of the Company */}
           <div>
             <h1 className="text-2xl text-slate-800">Company Management</h1>
@@ -140,87 +170,112 @@ const Company = () => {
             </div>
           </div>
 
-          {/* Searching functionality */}
-          <div className="my-10 ">
-            <div className="flex gap-3 my-5">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="name">Company Name</label>
-                <input
-                  type="search"
-                  name="name"
-                  id="search"
-                  className="outline rounded-md px-3 py-1"
-                  onChange={handleName}
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="email">Company Email</label>
-                <input
-                  type="search"
-                  name="email"
-                  id="search"
-                  className="outline rounded-md px-3 py-1"
-                  onChange={handleEmail}
-                />
-              </div>
-            </div>
-            <div>
-              <button
-                onClick={handleParams}
-                className="px-4 py-1 transform hover:scale-105 active:scale-90 bg-purple-800 text-white rounded-md hover:bg-purple-800 cursor-pointer"
+          {/* Another searching functionality */}
+          <div className="my-10">
+            <div
+              className="shadow  size-30 cursor-pointer"
+              onClick={handleSearchOpen}
+            >
+              <h1
+                className={`flex flex-col items-center justify-center gap-3 w-full h-full transition duration-75 ease-in rounded-lg ${
+                  searchOpen
+                    ? "bg-purple-800 text-white"
+                    : "bg-white text-black"
+                }`}
               >
-                Search
-              </button>
+                <span>
+                  <Search />
+                </span>
+                <span className="text-center">Search Company</span>
+              </h1>
             </div>
+          </div>
+
+          <div className="my-10 ">
+            {searchOpen === true && (
+              <div
+                className={`  max-w-[700px] bg-white shadow rounded-lg px-5 py-2  `}
+              >
+                <h1 className="text-xl font-medium my-4">Search</h1>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-3">
+                    <label htmlFor="name">Company Name</label>
+                    <input
+                      type="search"
+                      name="name"
+                      id="name"
+                      onChange={handleName}
+                      className="rounded-md shadow focus:outline-none text-gray-500 bg-gray-100 px-4 py-1 "
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    <label htmlFor="email">Company Email</label>
+                    <input
+                      type="search"
+                      name="email"
+                      id="email"
+                      onChange={handleEmail}
+                      className="rounded-md shadow focus:outline-none text-gray-500 bg-gray-100 px-4 py-1 "
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-10 flex flex-row justify-end">
+                  <button
+                    onClick={handleParams}
+                    className="px-4 py-2 bg-purple-700 text-white rounded-lg mx-2 cursor-pointer hover:bg-purple-900 transform transition duration-75 ease-in-out hover:scale-105 active:scale-95"
+                  >
+                    Search
+                  </button>
+                  <button
+                    onClick={() => setSearchOpen(false)}
+                    className="px-4 py-2 bg-gray-100 text-slate-950  rounded-lg mx-2 cursor-pointer hover:bg-gray-300 transform transition duration-75 ease-in-out hover:scale-105 active:scale-95"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Show Data  */}
 
-          <div className="hidden md:block overflow-auto mt-10 border-l-2 border-r-2 border-purple-800 rounded-md">
-            <table className="table-auto rounded-md shadow border-collapse">
+          <div className="hidden md:block overflow-auto mt-10 shadow rounded-md  ">
+            <table className="table-auto rounded-md shadow border-collapse ">
               <thead>
-                <tr className="bg-gradient-to-tr from-purple-600 to-purple-800 text-white">
-                  <th className="mx-4 my-1 py-1 px-2 border-r-2 border-white">
-                    Id
-                  </th>
-                  <th className="mx-4 my-1 py-1 px-2 border-2 border-white">
-                    Company Logo
-                  </th>
-                  <th className="mx-4 my-1 py-1 px-2 border-2 border-white">
-                    Company Name
-                  </th>
-                  <th className="mx-4 my-1 py-1 px-2 border-2 border-white">
-                    Company Email
-                  </th>
-                  <th className="mx-4 my-1 py-1 px-2 border-2 border-white">
+                <tr className="bg-gradient-to-r from-gray-500 to-gray-600 text-white font-medium">
+                  <td className="py-3 px-5 tracking-wider">Id</td>
+                  <td className="py-3 px-5  tracking-wider">Company Logo</td>
+                  <td className=" py-3 px-5  tracking-wider">Company Name</td>
+                  <td className=" py-3 px-5  tracking-wider">Company Email</td>
+                  <td className=" py-3 px-5  tracking-wider">
                     Company PhoneNumber
-                  </th>
-                  <th className="mx-4 my-1 py-1 px-2 border-2 border-white">
-                    Description
-                  </th>
-                  <th className="mx-4 my-1 py-1 px-2 border-2 border-white">
-                    Address
-                  </th>
-                  <th className="mx-4 my-1 py-1 px-2 border-2 border-white">
+                  </td>
+                  <td className=" py-3 px-5 tracking-wider">Description</td>
+                  <td className=" py-3 px-5 tracking-wider">Address</td>
+                  <td className="mx-4 my-1 py-3 px-2 tracking-wider">
                     Websites
-                  </th>
-                  <th className="mx-4 my-1 py-1 px-2 border-2 border-white">
-                    IsClaimed
-                  </th>
-                  <th className="mx-4 my-1 py-1 px-2 border-2 border-white">
-                    createdBy
-                  </th>
-                  <th className="mx-4 my-1 py-1 px-2 border-r-2 border-white">
+                  </td>
+                  <td className=" py-3 px-5 tracking-wider">IsClaimed</td>
+                  <td className=" py-3 px-5 tracking-wider">createdBy</td>
+                  <td className=" py-3 px-5 tracking-wider">
                     CompanyVerification
-                  </th>
-                  <th className="mx-4 my-1 py-1 px-2">Actions</th>
+                  </td>
+                  <td className=" py-3 px-5 tracking-wider">Actions</td>
                 </tr>
               </thead>
 
               <tbody className="text-sm">
                 {companyData &&
-                  companyData.map((company) => (
-                    <tr key={company._id} className="text-center">
+                  companyData.map((company, index) => (
+                    <tr
+                      key={company._id}
+                      className={`text-center ${
+                        index % 2 === 0 ? "bg-gray-200" : "bg-white"
+                      }`}
+                    >
                       {/* ID */}
                       <td className="border-b-2  border-purple-800 px-2 py-2">
                         {company._id.slice(0, 10)}
@@ -305,7 +360,7 @@ const Company = () => {
                         </span>
                       </td>
 
-                      <td className="px-2 py-2 flex flex-row flex-wrap gap-2  border-b-2 border-purple-800">
+                      <td className="px-2 py-2 flex flex-col  gap-2  border-b-2 border-purple-800">
                         <button className="bg-green-700 text-white px-3 py-1 rounded-sm hover:bg-green-900 transition duration-200 ease-in-out cursor-pointer transform hover:scale-110 active:scale-90">
                           View
                         </button>
@@ -418,7 +473,7 @@ const Company = () => {
                         <span>
                           <Eye size={18} />
                         </span>
-                        <span>View Details</span>
+                        <span>View</span>
                       </button>
                       <button className="flex justify-center items-center gap-2 px-4 py-2 rounded-lg bg-red-700 text-white transition transform ease-in duration-200  hover:scale-110 active:scale-90">
                         <span>
@@ -430,6 +485,50 @@ const Company = () => {
                   </div>
                 );
               })}
+          </div>
+
+          {/* page number */}
+          <div className="my-10 ">
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className={`bg-gray-100 px-4 py-2 rounded-md   hover:bg-gray-300 ${
+                    currentPage == 1 ? "cursor-not-allowed" : "cursor-pointer"
+                  }`}
+                >
+                  Previous
+                </button>
+
+                <div className="flex gap-1">
+                  {pageButtons?.map((page) => (
+                    <button
+                      onClick={() => handlePageChange(page)}
+                      key={page}
+                      className={`rounded-full cursor-pointer  px-3 py-1 ${
+                        page === currentPage
+                          ? "bg-gray-300 text-black"
+                          : "bg-purple-700 text-white"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`bg-gray-100 px-4 py-2 rounded-md hover:bg-gray-300 ${
+                    currentPage == totalPages
+                      ? "cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </section>
       </main>
