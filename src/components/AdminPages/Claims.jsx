@@ -222,7 +222,9 @@ const Claims = () => {
               <div>
                 <h1
                   onClick={handleSearch}
-                  className="size-30 shadow flex justify-center items-center flex-col gap-2 rounded-lg  cursor-pointer text-slate-800 transition duration-150 ease-in hover:bg-purple-800 hover:text-white"
+                  className={`size-30 shadow flex justify-center items-center flex-col gap-2 rounded-lg  cursor-pointer text-slate-800 transition duration-150 ease-in hover:bg-purple-800 hover:text-white ${
+                    searchOpen ? "bg-purple-800 text-white" : "bg-white"
+                  }`}
                 >
                   <span>
                     <Search />
@@ -246,7 +248,9 @@ const Claims = () => {
               <div>
                 <h1
                   onClick={handleSort}
-                  className="size-30 shadow flex justify-center items-center flex-col gap-2 rounded-lg  cursor-pointer text-slate-800 transition duration-150 ease-in hover:bg-purple-800 hover:text-white"
+                  className={`size-30 shadow flex justify-center items-center flex-col gap-2 rounded-lg  cursor-pointer text-slate-800 transition duration-150 ease-in hover:bg-purple-800 hover:text-white ${
+                    sortOpen ? "bg-purple-800 text-white" : "bg-white"
+                  }`}
                 >
                   <span>
                     <ArrowDownWideNarrow />
