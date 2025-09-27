@@ -9,4 +9,5 @@
 @theme {
     --font-open-sans: "Open Sans", sans-serif;
     --font-poppins: "Poppins", sans-serif;
+    --breakpoint-small: 30rem;
 }

@@ -161,7 +161,7 @@ const JobPage = () => {
         </div>
 
         <div className="max-w-[1300px] w-[95%] mx-auto md:flex gap-5">
-          <aside className=" md:w-1/4 bg-white shadow rounded-2xl p-4 md:sticky top-5 h-fit mb-4">
+          <aside className=" md:w-1/4 bg-white shadow rounded-2xl p-4 md:sticky top-5 md:h-fit mb-4">
             <form onSubmit={handleSearch}>
               {/* Search by Job Title */}
               <div className="flex flex-col justify-center mb-4">

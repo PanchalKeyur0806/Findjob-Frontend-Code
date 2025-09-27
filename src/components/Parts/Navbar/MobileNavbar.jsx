@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 
 const MobileNavbar = () => {
   return (
-    <div className="absolute left-0 top-15 w-full">
+    <div className="sticky left-0 top-15 w-full z-50">
       <ul className="py-5 flex flex-col text-center gap-5 bg-purple-900 text-white text-xl">
         <NavLink
           to="/"
