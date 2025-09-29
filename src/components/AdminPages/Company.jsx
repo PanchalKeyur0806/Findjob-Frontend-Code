@@ -7,7 +7,9 @@ import Aside from "../Parts/Aside/Aside";
 import { useSearchParams } from "react-router-dom";
 import useGetData from "../../Hooks/FetchGetDataHook";
 import LoadingBar from "react-top-loading-bar";
-import { Dot, Eye, Mail, Menu, Search, Trash } from "lucide-react";
+import { Eye, Mail, Menu, Search, Trash } from "lucide-react";
+import InputFields from "../Parts/Admin/InputFields";
+import SearchMenu from "../Parts/Admin/Search";
 
 const Company = () => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -104,6 +106,10 @@ const Company = () => {
     setSearchOpen(!searchOpen);
   };
 
+  const handleSearchCancel = () => {
+    setSearchOpen(false);
+  };
+
   const pageButtons = useMemo(() => {
     if (totalPages <= 1) return [1];
 
@@ -193,50 +199,26 @@ const Company = () => {
 
           <div className="my-10 ">
             {searchOpen === true && (
-              <div
-                className={`  max-w-[700px] bg-white shadow rounded-lg px-5 py-2  `}
+              <SearchMenu
+                title="Search"
+                onSubmit={handleParams}
+                onCancel={handleSearchCancel}
               >
-                <h1 className="text-xl font-medium my-4">Search</h1>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-3">
-                    <label htmlFor="name">Company Name</label>
-                    <input
-                      type="search"
-                      name="name"
-                      id="name"
-                      onChange={handleName}
-                      className="rounded-md shadow focus:outline-none text-gray-500 bg-gray-100 px-4 py-1 "
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <label htmlFor="email">Company Email</label>
-                    <input
-                      type="search"
-                      name="email"
-                      id="email"
-                      onChange={handleEmail}
-                      className="rounded-md shadow focus:outline-none text-gray-500 bg-gray-100 px-4 py-1 "
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-10 flex flex-row justify-end">
-                  <button
-                    onClick={handleParams}
-                    className="px-4 py-2 bg-purple-700 text-white rounded-lg mx-2 cursor-pointer hover:bg-purple-900 transform transition duration-75 ease-in-out hover:scale-105 active:scale-95"
-                  >
-                    Search
-                  </button>
-                  <button
-                    onClick={() => setSearchOpen(false)}
-                    className="px-4 py-2 bg-gray-100 text-slate-950  rounded-lg mx-2 cursor-pointer hover:bg-gray-300 transform transition duration-75 ease-in-out hover:scale-105 active:scale-95"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
+                <InputFields
+                  labelId={"name"}
+                  labelName={"Company Name"}
+                  inputName={"name"}
+                  inputId={"name"}
+                  onChange={handleName}
+                />
+                <InputFields
+                  labelId={"email"}
+                  labelName={"Company Email"}
+                  inputName={"email"}
+                  inputId={"email"}
+                  onChange={handleEmail}
+                />
+              </SearchMenu>
             )}
           </div>
 

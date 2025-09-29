@@ -12,6 +12,9 @@ import useGetData from "../../Hooks/FetchGetDataHook";
 import { useSearchParams } from "react-router-dom";
 import LoadingBar from "react-top-loading-bar";
 import { MdEmail } from "react-icons/md";
+import SearchMenu from "../Parts/Admin/Search";
+import InputFields from "../Parts/Admin/InputFields";
+import SortMenu from "../Parts/Admin/SortMenu";
 
 const Claims = () => {
   const [isAsideOpen, setIsAsideOpen] = useState(false);
@@ -83,8 +86,6 @@ const Claims = () => {
       setCurrentPage(response.data.currentPage);
       setNumOfPages(response.data.numOfPages);
       setTotalDocs(response.data.totalClaims);
-
-      console.log(response);
     }
 
     fetchData();
@@ -262,81 +263,37 @@ const Claims = () => {
 
             {/*  */}
             {searchOpen === true && (
-              <div className="max-w-[700px] shadow rounded-lg px-5 py-5 my-5 ">
-                <div className="grid grid-cols-1 small:grid-cols-2 gap-3">
-                  <div className="flex gap-2 flex-col">
-                    <label htmlFor="userName">Search By Username</label>
-                    <input
-                      type="search"
-                      name="userName"
-                      id="userName"
-                      onChange={handleUserName}
-                      className="focus:outline-none shadow bg-gray-100 rounded-md text-gray-500 px-4 py-1"
-                    />
-                  </div>
-
-                  <div className="flex gap-2 flex-col">
-                    <label htmlFor="email">Search By email</label>
-                    <input
-                      type="search"
-                      name="email"
-                      id="email"
-                      onChange={handleUserEmail}
-                      className="focus:outline-none shadow bg-gray-100 rounded-md text-gray-500 px-4 py-1"
-                    />
-                  </div>
-
-                  <div className="flex gap-2 flex-col">
-                    <label htmlFor="companyName">Search By Company Name</label>
-                    <input
-                      type="search"
-                      name="companyName"
-                      id="companyName"
-                      onChange={handleCompanyName}
-                      className="focus:outline-none shadow bg-gray-100 rounded-md text-gray-500 px-4 py-1"
-                    />
-                  </div>
-                </div>
-
-                {/* Buttons */}
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={handleParams}
-                    className="bg-purple-700 text-white  px-4 py-1 rounded-md mt-4 hover:bg-purple-900 cursor-pointer transform transition duration-150 ease-in-out hover:scale-105 hover:active:scale-95"
-                  >
-                    Search
-                  </button>
-                  <button
-                    onClick={() => setSearchOpen(false)}
-                    className="bg-gray-100 text-slate-800  px-4 py-1 rounded-md mt-4 hover:bg-gray-300 cursor-pointer transform transition duration-150 ease-in-out hover:scale-105 hover:active:scale-95"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
+              <SearchMenu
+                title={"Search"}
+                onSubmit={handleParams}
+                onCancel={() => setSearchOpen(false)}
+              >
+                <InputFields
+                  labelId={"userName"}
+                  labelName={"Search By Username"}
+                  inputId={"userName"}
+                  inputName={"userName"}
+                  onChange={handleUserName}
+                />
+                <InputFields
+                  labelId={"email"}
+                  labelName={"Search By email"}
+                  inputId={"email"}
+                  inputName={"email"}
+                  onChange={handleUserEmail}
+                />
+                <InputFields
+                  labelId={"companyName"}
+                  labelName={"Search By Company Name"}
+                  inputId={"companyName"}
+                  inputName={"companyName"}
+                  onChange={handleCompanyName}
+                />
+              </SearchMenu>
             )}
 
             {sortOpen === true && (
-              <div className="max-w-[700px] shadow rounded-lg px-5 py-5 my-5">
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => handleSorting("new")}
-                    className={` px-5 py-2 rounded-lg hover:bg-gray-300 text-slate-800 cursor-pointer transition transform duration-100 ease-in hover:scale-103 active:scale-98 ${
-                      sortField === "new" ? "bg-gray-300" : "bg-gray-100"
-                    }`}
-                  >
-                    Newest
-                  </button>
-                  <button
-                    onClick={() => handleSorting("old")}
-                    className={` px-5 py-2 rounded-lg hover:bg-gray-300 text-slate-800 cursor-pointer transition transform duration-100 ease-in hover:scale-103 active:scale-98 ${
-                      sortField === "old" ? "bg-gray-300" : "bg-gray-100"
-                    }`}
-                  >
-                    Oldest
-                  </button>
-                </div>
-              </div>
+              <SortMenu sortField={sortField} handleSorting={handleSorting} />
             )}
           </div>
 

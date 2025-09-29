@@ -24,6 +24,7 @@ import Dashboard from "./components/AdminPages/Dashboard.jsx";
 import { SocketProvider } from "./Contexts/socketContext.jsx";
 import Company from "./components/AdminPages/Company.jsx";
 import Claims from "./components/AdminPages/Claims.jsx";
+import Contacts from "./components/AdminPages/Contacts.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -46,6 +47,7 @@ const router = createBrowserRouter(
         <Route path="users" element={<Users />} />
         <Route path="companies" element={<Company />} />
         <Route path="claims" element={<Claims />} />
+        <Route path="contacts" element={<Contacts />} />
       </Route>
     </>
   )
