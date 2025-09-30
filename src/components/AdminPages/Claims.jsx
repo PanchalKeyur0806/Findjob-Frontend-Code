@@ -15,6 +15,11 @@ import { MdEmail } from "react-icons/md";
 import SearchMenu from "../Parts/Admin/Search";
 import InputFields from "../Parts/Admin/InputFields";
 import SortMenu from "../Parts/Admin/SortMenu";
+import {
+  CancelSearchBtn,
+  SearchBtn,
+  SortBtn,
+} from "../Parts/Admin/SearchingBtns";
 
 const Claims = () => {
   const [isAsideOpen, setIsAsideOpen] = useState(false);
@@ -29,7 +34,7 @@ const Claims = () => {
   const [userNameField, setUserNameField] = useState("");
   const [userEmailField, setUserEmailField] = useState("");
   const [companyNameField, setCompanyNameField] = useState("");
-  const [sortField, setSortField] = useState("new");
+  const [sortField, setSortField] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [getData, getLoading, getMessage, getError, progress, setProgress] =
@@ -219,46 +224,11 @@ const Claims = () => {
           {/* Searching */}
           <div>
             {/* Searching Buttons */}
+
             <div className="flex gap-3 flex-wrap mt-10">
-              <div>
-                <h1
-                  onClick={handleSearch}
-                  className={`size-30 shadow flex justify-center items-center flex-col gap-2 rounded-lg  cursor-pointer text-slate-800 transition duration-150 ease-in hover:bg-purple-800 hover:text-white ${
-                    searchOpen ? "bg-purple-800 text-white" : "bg-white"
-                  }`}
-                >
-                  <span>
-                    <Search />
-                  </span>
-                  <span>Search</span>
-                </h1>
-              </div>
-
-              <div>
-                <h1
-                  onClick={handleResetSearch}
-                  className="size-30 shadow flex justify-center items-center flex-col gap-2 rounded-lg  cursor-pointer text-slate-800 transition duration-150 ease-in hover:bg-purple-800 hover:text-white"
-                >
-                  <span>
-                    <SearchX />
-                  </span>
-                  <span>Reset Search</span>
-                </h1>
-              </div>
-
-              <div>
-                <h1
-                  onClick={handleSort}
-                  className={`size-30 shadow flex justify-center items-center flex-col gap-2 rounded-lg  cursor-pointer text-slate-800 transition duration-150 ease-in hover:bg-purple-800 hover:text-white ${
-                    sortOpen ? "bg-purple-800 text-white" : "bg-white"
-                  }`}
-                >
-                  <span>
-                    <ArrowDownWideNarrow />
-                  </span>
-                  <span>SortBy</span>
-                </h1>
-              </div>
+              <SearchBtn handleSearch={handleSearch} searchOpen={searchOpen} />
+              <CancelSearchBtn cancelSearch={handleResetSearch} />
+              <SortBtn handleSort={handleSort} sortOpen={sortOpen} />
             </div>
 
             {/*  */}

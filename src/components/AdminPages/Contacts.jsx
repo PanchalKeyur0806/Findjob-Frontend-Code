@@ -7,6 +7,11 @@ import useGetData from "../../Hooks/FetchGetDataHook";
 import LoadingBar from "react-top-loading-bar";
 import { useSearchParams } from "react-router-dom";
 import SortMenu from "../Parts/Admin/SortMenu";
+import {
+  CancelSearchBtn,
+  SearchBtn,
+  SortBtn,
+} from "../Parts/Admin/SearchingBtns";
 
 const Contacts = () => {
   const [isAsideOpen, setIsAsideOpen] = useState(false);
@@ -23,7 +28,7 @@ const Contacts = () => {
   const [emailField, setEmail] = useState("");
   const [messageField, setMessage] = useState("");
   const [statusField, setStatus] = useState("");
-  const [sortField, setSortField] = useState("new");
+  const [sortField, setSortField] = useState("");
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -53,7 +58,7 @@ const Contacts = () => {
     if (message) params.set("message", message);
     if (status) params.set("status", status);
     if (page) params.set("page", page);
-    if (sort) params.set("sort", sortField);
+    if (sort) params.set("sort", sort);
 
     return `${baseUrl}api/contacts?${params.toString()}`;
   }
@@ -217,47 +222,9 @@ const Contacts = () => {
           {/* searching section */}
           <div className="my-10">
             <div className="flex gap-4 flex-wrap">
-              <div>
-                <p
-                  onClick={handleSearch}
-                  className={`size-30 shadow rounded-lg  flex flex-col gap-3 items-center justify-center cursor-pointer hover:bg-purple-800 hover:text-white transition duration-150 ease-in-out ${
-                    searchOpen
-                      ? "bg-purple-800 text-white"
-                      : "bg-white text-slate-800"
-                  }`}
-                >
-                  <span>
-                    <Search />
-                  </span>
-                  <span>Search</span>
-                </p>
-              </div>
-              <div>
-                <p
-                  onClick={cancelSearch}
-                  className={`size-30 shadow rounded-lg  flex flex-col gap-3 items-center justify-center cursor-pointer hover:bg-purple-800 hover:text-white transition duration-150 ease-in-out `}
-                >
-                  <span>
-                    <SearchX />
-                  </span>
-                  <span>Cancel Search</span>
-                </p>
-              </div>
-              <div>
-                <p
-                  onClick={handleSort}
-                  className={`size-30 shadow rounded-lg  flex flex-col gap-3 items-center justify-center cursor-pointer hover:bg-purple-800 hover:text-white transition duration-150 ease-in-out ${
-                    sortOpen
-                      ? "bg-purple-800 text-white"
-                      : "bg-white text-slate-800"
-                  }`}
-                >
-                  <span>
-                    <SortDescIcon />
-                  </span>
-                  <span>Sort By</span>
-                </p>
-              </div>
+              <SearchBtn handleSearch={handleSearch} searchOpen={searchOpen} />
+              <CancelSearchBtn cancelSearch={cancelSearch} />
+              <SortBtn handleSort={handleSort} sortOpen={sortOpen} />
             </div>
 
             {searchOpen && (

@@ -1,23 +1,33 @@
 import React, { useEffect, useState } from "react";
 import Aside from "../Parts/Aside/Aside";
-import { Menu, PhoneCall, Search } from "lucide-react";
+import { Menu, PhoneCall, Search, SearchX, SortDesc } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import useGetData from "../../Hooks/FetchGetDataHook";
 import LoadingBar from "react-top-loading-bar";
+import SearchMenu from "../Parts/Admin/Search";
+import InputFields from "../Parts/Admin/InputFields";
+import SortMenu from "../Parts/Admin/SortMenu";
+import {
+  CancelSearchBtn,
+  SearchBtn,
+  SortBtn,
+} from "../Parts/Admin/SearchingBtns";
 
 const Users = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [isAsideOpen, setIsAsideOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
 
   const [searchField, setSearchField] = useState(null);
   const [emailField, setEmailField] = useState(null);
   const [rolesField, setRoles] = useState(null);
+  const [sortField, setSortField] = useState("");
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [userData, setUserData] = useState(null);
   const [numOfUsers, setNumOfUsers] = useState(null);
   const [currentPage, setCurrentPage] = useState(null);
   const [totalUsers, setTotalUsers] = useState(null);
-  const [userCreated, setUserCreated] = useState(null);
 
   // custom hooks
   const [getData, getLoading, getMessage, getError, progress, setProgress] =
@@ -27,6 +37,7 @@ const Users = () => {
   const email = searchParams.get("email") || undefined;
   const roles = searchParams.get("roles") || "all";
   const page = Number(searchParams.get("page") || "1");
+  const sort = searchParams.get("sort") || "new";
 
   const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
   const baseUrl = isDevelopment
@@ -41,6 +52,7 @@ const Users = () => {
     if (email) params.set("email", email);
     if (page) params.set("page", page);
     if (roles && roles !== "all") params.set("roles", roles);
+    if (sort) params.set("sort", sort);
 
     return `${baseUrl}?${params}`;
   }
@@ -68,6 +80,10 @@ const Users = () => {
   // handle submit
   const handleAside = () => {
     setIsAsideOpen(!isAsideOpen);
+  };
+
+  const handleSortOpen = () => {
+    setSortOpen(!sortOpen);
   };
 
   // hanlde params
@@ -98,14 +114,24 @@ const Users = () => {
 
     const search = searchField?.trim();
     const email = emailField?.trim();
+    const sort = sortField?.trim();
 
     updateParams({
       search,
       email,
       roles: rolesField,
+      sort: sort,
     });
   };
 
+  const handleCancelSearch = () => {
+    updateParams({
+      search: "",
+      email: "",
+      roles: "",
+      sort: "new",
+    });
+  };
   // handle page change
   const handlePageChange = (newPage) => {
     updateParams({
@@ -113,6 +139,16 @@ const Users = () => {
       email,
       roles: rolesField,
       page: newPage,
+    });
+  };
+
+  const handleSorting = (sortOption) => {
+    setSortField(sortOption);
+    updateParams({
+      search,
+      email,
+      roles,
+      sort: sortOption,
     });
   };
 
@@ -160,84 +196,53 @@ const Users = () => {
             </p>
           </div>
 
-          <div className="px-10 my-10">
-            <h1
-              className={`rounded-lg shadow size-30 cursor-pointer flex flex-col gap-3 items-center justify-center transition duration-100 ease-in-out ${
-                searchOpen
-                  ? "bg-purple-800 text-white "
-                  : "bg-white text-slate-900"
-              }`}
-              onClick={handleSearch}
-            >
-              <span>
-                {" "}
-                <Search />
-              </span>
-              <span>Search</span>
-            </h1>
-
-            <div></div>
+          <div className="flex gap-4 mt-10 ml-10">
+            <SearchBtn searchOpen={searchOpen} handleSearch={handleSearch} />
+            <CancelSearchBtn cancelSearch={handleCancelSearch} />
+            <SortBtn handleSort={handleSortOpen} />
           </div>
 
           <div className="my-10 mx-10">
             {searchOpen && (
-              <div className="max-w-[700px] shadow rounded-lg px-5 py-2">
-                <h1 className="text-xl font-medium my-4">Search</h1>
+              <SearchMenu
+                title={"Search"}
+                onSubmit={handleParams}
+                onCancel={() => setSearchOpen(false)}
+              >
+                <InputFields
+                  labelId={"search"}
+                  labelName={"Search"}
+                  inputId={"search"}
+                  inputName={"search"}
+                  onChange={(e) => setSearchField(e.target.value)}
+                />
+                <InputFields
+                  labelId={"email"}
+                  labelName={"Email"}
+                  inputId={"email"}
+                  inputName={"email"}
+                  onChange={(e) => setEmailField(e.target.value)}
+                />
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-3">
-                    <label htmlFor="search">Search</label>
-                    <input
-                      type="search"
-                      name="search"
-                      id="search"
-                      onChange={(e) => setSearchField(e.target.value)}
-                      className="focus:outline-none bg-gray-100 px-4 py-1 rounded-md shadow text-gray-500"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <label htmlFor="email">Email</label>
-                    <input
-                      type="search"
-                      name="email"
-                      id="email"
-                      onChange={(e) => setEmailField(e.target.value)}
-                      className="focus:outline-none bg-gray-100 px-4 py-1 rounded-md shadow text-gray-500"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <p>Select Role</p>
-                    <select
-                      name="roles"
-                      id="roles"
-                      onChange={(e) => setRoles(e.target.value)}
-                      className="bg-gray-100 text-gray-500 focus:outline-none rounded-md shadow px-4 py-1"
-                    >
-                      <option value="all">All</option>
-                      <option value="recruiter">Recruiter</option>
-                      <option value="candidate">Candidate</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="mt-10 flex justify-end">
-                  <button
-                    onClick={handleParams}
-                    className="px-4 py-2 bg-purple-700 text-white rounded-md shadow transition duration-100 ease-in-out hover:bg-purple-900 cursor-pointer mx-3 transform active:scale-95 hover:scale-105"
+                <div className="flex flex-col gap-3">
+                  <p>Select Role</p>
+                  <select
+                    name="roles"
+                    id="roles"
+                    onChange={(e) => setRoles(e.target.value)}
+                    className="bg-gray-100 text-gray-500 focus:outline-none rounded-md shadow px-4 py-1"
                   >
-                    Search
-                  </button>
-                  <button
-                    onClick={() => setSearchOpen(false)}
-                    className="px-4 py-2 bg-gray-100 text-slate-900 rounded-md shadow transition duration-100 ease-in-out hover:bg-gray-300 cursor-pointer mx-3 transform active:scale-95 hover:scale-105"
-                  >
-                    Cancel
-                  </button>
+                    <option value="all">All</option>
+                    <option value="recruiter">Recruiter</option>
+                    <option value="candidate">Candidate</option>
+                    <option value="admin">Admin</option>
+                  </select>
                 </div>
-              </div>
+              </SearchMenu>
+            )}
+
+            {sortOpen && (
+              <SortMenu sortField={sortField} handleSorting={handleSorting} />
             )}
           </div>
 

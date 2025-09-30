@@ -7,13 +7,29 @@ import Aside from "../Parts/Aside/Aside";
 import { useSearchParams } from "react-router-dom";
 import useGetData from "../../Hooks/FetchGetDataHook";
 import LoadingBar from "react-top-loading-bar";
-import { Eye, Mail, Menu, Search, Trash } from "lucide-react";
+import {
+  Eye,
+  Mail,
+  Menu,
+  Search,
+  SearchX,
+  SortDesc,
+  Trash,
+} from "lucide-react";
 import InputFields from "../Parts/Admin/InputFields";
 import SearchMenu from "../Parts/Admin/Search";
+import SortMenu from "../Parts/Admin/SortMenu";
+import {
+  CancelSearchBtn,
+  SearchBtn,
+  SortBtn,
+} from "../Parts/Admin/SearchingBtns";
 
 const Company = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [isAsideOpen, setIsAsideOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+
   const [companyData, setCompanyData] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -22,6 +38,7 @@ const Company = () => {
   const [nameField, setNameField] = useState("");
   const [emailField, setEmailField] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
+  const [sortField, setSortField] = useState("");
 
   const [getData, getLoading, getMessage, getError, progress, setProgress] =
     useGetData();
@@ -29,6 +46,7 @@ const Company = () => {
   const name = searchParams.get("name") || "";
   const email = searchParams.get("email") || "";
   const page = Number(searchParams.get("page") || "1");
+  const sort = searchParams.get("sort") || "new";
 
   const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
   const baseUrl = isDevelopment
@@ -42,6 +60,7 @@ const Company = () => {
     if (email) params.set("email", email);
 
     if (page) params.set("page", page);
+    if (sort) params.set("sort", sort);
 
     return `${baseUrl}api/company?${params}`;
   }
@@ -61,9 +80,14 @@ const Company = () => {
       currentParams.set("page", "1");
     }
 
+    if (!params.hasOwnProperty("sort")) {
+      currentPage.set("sort", "new");
+    }
+
     setSearchParams(currentParams);
   };
 
+  // fetch the data
   useEffect(() => {
     async function fetchData() {
       const response = await getData(buildBaseUrl(), { withCredentials: true });
@@ -81,13 +105,18 @@ const Company = () => {
     setIsAsideOpen(!isAsideOpen);
   };
 
+  const handleSortOpen = () => {
+    setSortOpen(!sortOpen);
+  };
+
   const handleParams = (e) => {
     e.preventDefault();
 
     const email = emailField?.trim();
     const name = nameField?.trim();
+    const sort = sortField?.trim();
 
-    updateParams({ email, name });
+    updateParams({ email, name, sort });
   };
 
   const handlePageChange = (page) => {
@@ -108,6 +137,24 @@ const Company = () => {
 
   const handleSearchCancel = () => {
     setSearchOpen(false);
+  };
+
+  const cancelSearch = () => {
+    updateParams({
+      name: "",
+      email: "",
+      sort: "new",
+    });
+  };
+
+  const handleSorting = (sortOption) => {
+    setSortField(sortOption);
+    updateParams({
+      name,
+      email,
+      page,
+      sort: sortOption,
+    });
   };
 
   const pageButtons = useMemo(() => {
@@ -177,24 +224,13 @@ const Company = () => {
           </div>
 
           {/* Another searching functionality */}
-          <div className="my-10">
-            <div
-              className="shadow  size-30 cursor-pointer"
-              onClick={handleSearchOpen}
-            >
-              <h1
-                className={`flex flex-col items-center justify-center gap-3 w-full h-full transition duration-75 ease-in rounded-lg ${
-                  searchOpen
-                    ? "bg-purple-800 text-white"
-                    : "bg-white text-black"
-                }`}
-              >
-                <span>
-                  <Search />
-                </span>
-                <span className="text-center">Search Company</span>
-              </h1>
-            </div>
+          <div className="my-10 flex gap-4">
+            <SearchBtn
+              handleSearch={handleSearchOpen}
+              searchOpen={searchOpen}
+            />
+            <CancelSearchBtn cancelSearch={cancelSearch} />
+            <SortBtn handleSort={handleSortOpen} sortOpen={sortOpen} />
           </div>
 
           <div className="my-10 ">
@@ -219,6 +255,10 @@ const Company = () => {
                   onChange={handleEmail}
                 />
               </SearchMenu>
+            )}
+
+            {sortOpen && (
+              <SortMenu sortField={sortField} handleSorting={handleSorting} />
             )}
           </div>
 
