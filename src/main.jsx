@@ -25,6 +25,9 @@ import { SocketProvider } from "./Contexts/socketContext.jsx";
 import Company from "./components/AdminPages/Company.jsx";
 import Claims from "./components/AdminPages/Claims.jsx";
 import Contacts from "./components/AdminPages/Contacts.jsx";
+import ChatLayout from "./ChatLayout.jsx";
+import ChatPage from "./components/Chat/ChatPage.jsx";
+import ChatNotification from "./components/Chat/ChatNotification.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -39,6 +42,11 @@ const router = createBrowserRouter(
         <Route path="auth/callback" element={<AuthCallback />} />
         <Route path="applications" element={<MyApplications />} />
         <Route path="job/:jobId" element={<JobDetails />} />
+      </Route>
+
+      <Route path="chat" element={<ChatLayout />}>
+        <Route path="" element={<ChatPage />} />
+        <Route path="notifications" element={<ChatNotification />} />
       </Route>
 
       <Route path="admin" element={<AdminLayout />}>
