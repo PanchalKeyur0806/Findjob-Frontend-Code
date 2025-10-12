@@ -71,6 +71,7 @@ const ChatMenu = ({ notificationData, setNotificationData }) => {
     // listing on following requests
     socket.on("follow", (data) => {
       setNotificationMsg(`${data.meta.userName} has followed you`);
+      setNotificationData((prev) => [...prev, data]);
     });
 
     // listing on unfollowing requests
@@ -154,7 +155,7 @@ const ChatMenu = ({ notificationData, setNotificationData }) => {
 
   return (
     <>
-      <section className="relative top-0">
+      <section className="sticky top-0 z-20">
         <header className="bg-white    font-poppins px-4 py-2  border-b-2 border-gray-300">
           <nav className="h-20  max-w-[800px] mx-auto flex items-center justify-between">
             {/* Company Logo */}
@@ -163,7 +164,7 @@ const ChatMenu = ({ notificationData, setNotificationData }) => {
             </div>
 
             {/* Search */}
-            <div className="hidden sm:flex  items-center relative">
+            <div className="hidden md:flex  items-center relative">
               <input
                 type="search"
                 name="email"
@@ -179,7 +180,7 @@ const ChatMenu = ({ notificationData, setNotificationData }) => {
             </div>
 
             {/* Navigation */}
-            <div>
+            <div className="hidden md:block">
               <ul className="flex gap-4 md:gap-10 text-sm ">
                 <li>
                   <NavLink to={"/"} className={"flex flex-col items-center"}>
@@ -227,7 +228,53 @@ const ChatMenu = ({ notificationData, setNotificationData }) => {
             </div>
           </nav>
 
-          <div className="flex sm:hidden  relative">
+          <div className="flex md:hidden">
+            <ul className="flex justify-evenly w-full gap-4 md:gap-10 text-sm ">
+              <li>
+                <NavLink to={"/"} className={"flex flex-col items-center"}>
+                  <span>
+                    <House size={18} />
+                  </span>
+                  <span>Home</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to={""} className={"flex flex-col items-center"}>
+                  <span>
+                    <MessageCircleCode size={18} />
+                  </span>
+                  <span>Message</span>
+                </NavLink>
+              </li>
+              <li className="relative">
+                <NavLink
+                  to={"notifications"}
+                  className={"flex flex-col items-center "}
+                >
+                  <span>
+                    <Bell size={18} />
+                  </span>
+                  <span>Notifications</span>
+                  <span
+                    className={`absolute right-1 top-0 bg-green-700 text-white rounded-full size-6 flex items-center justify-center font-semibold text-[12px] ${
+                      notificationData?.length === 0 ? "hidden" : "block"
+                    }`}
+                  >
+                    {notificationData?.length > 10
+                      ? "10+"
+                      : notificationData?.length}
+                  </span>
+                </NavLink>
+              </li>
+              <li>
+                <span className="text-[20px]">
+                  <BsPeople />
+                </span>
+                Me
+              </li>
+            </ul>
+          </div>
+          <div className="flex md:hidden   relative">
             <input
               type="search"
               name="email"
@@ -245,7 +292,7 @@ const ChatMenu = ({ notificationData, setNotificationData }) => {
         {searchOpen && (
           <div
             ref={searchBoxRef}
-            className="w-[550px] h-[300px] overflow-y-scroll mx-auto shadow-2xl rounded-xl absolute left-1/2 -translate-x-1/2 bg-white z-10"
+            className="w-[95%] md:w-[550px] h-[300px] overflow-y-scroll mx-auto shadow-2xl rounded-xl absolute left-1/2 -translate-x-1/2 bg-white z-10"
           >
             {userData && userData.length >= 1 ? (
               <div className="divide-y divide-gray-100">
