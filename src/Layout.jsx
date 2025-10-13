@@ -5,19 +5,10 @@ import Navbar from "./components/Parts/Navbar/Navbar";
 import Footer from "./components/Parts/Footer/Footer";
 
 const Layout = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    setIsAuthenticated(!!Cookies.get("token"));
-  }, []);
-
   return (
     <>
-      <Navbar
-        isAuthenticated={isAuthenticated}
-        setIsAuthenticated={setIsAuthenticated}
-      />
-      <Outlet context={{ setIsAuthenticated }} />
+      <Navbar />
+      <Outlet />
       <Footer />
     </>
   );

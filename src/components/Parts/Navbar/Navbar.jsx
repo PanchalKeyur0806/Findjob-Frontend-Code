@@ -1,35 +1,26 @@
 import { useState } from "react";
-import axios from "axios";
 import { NavLink } from "react-router-dom";
 import { IoReorderThreeOutline, IoClose } from "react-icons/io5";
 import Cookies from "js-cookie";
 import MobileNavbar from "./MobileNavbar";
+import { useAuth } from "../../../Contexts/useAuth";
 
-const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
+const Navbar = () => {
   const [isOpen, setOpen] = useState(false);
+
+  const { isAuthenticated, logout } = useAuth();
 
   function handleChange() {
     setOpen(!isOpen);
   }
 
-  // check that project is in development
-  const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
-
   // handle Logout
   const handleLogout = async () => {
     // setLoggingOut(true);
     try {
-      const url = isDevelopment
-        ? "http://localhost:7000/api/auth/logout"
-        : import.meta.env.VITE_BACKEND_URL + "api/auth/logout";
-
-      await axios.post(url, null, {
-        withCredentials: true,
-      });
+      await logout();
     } catch (error) {
       console.log(error);
-    } finally {
-      setIsAuthenticated(false);
     }
   };
 

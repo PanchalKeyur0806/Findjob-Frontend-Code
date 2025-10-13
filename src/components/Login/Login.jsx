@@ -1,28 +1,17 @@
 import React, { useActionState } from "react";
 import Cookies from "js-cookie";
-import { useOutletContext } from "react-router-dom";
-import usePostData from "../../Hooks/FetchDataHook";
+import { useAuth } from "../../Contexts/useAuth";
 
 const Login = () => {
   const [state, action, pending] = useActionState(submitLogin, null);
-  const [postData, data, message, error] = usePostData();
-  const { setIsAuthenticated } = useOutletContext();
 
-  // check that project is in development
-  const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
+  const { login } = useAuth();
 
-  // Handle the login
   async function submitLogin(preData, formData) {
     const email = formData.get("email");
     const password = formData.get("password");
 
-    // check that project is in development
-    const url = isDevelopment
-      ? "http://localhost:7000/api/auth/login"
-      : import.meta.env.VITE_BACKEND_URL + "api/auth/login";
-
-    await postData(url, { email, password });
-    setIsAuthenticated(true);
+    await login({ email, password });
   }
   return (
     <section className="px-5 my-5 max-w-[400px] w-[95%] mx-auto shadow font-poppins">
@@ -74,17 +63,6 @@ const Login = () => {
             Login via Google
           </button>
         </div>
-
-        {error && (
-          <div className="w-full md:w-[95%] bg-red-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
-            {error}
-          </div>
-        )}
-        {message && (
-          <div className="w-full md:w-[95%] bg-green-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
-            {message}
-          </div>
-        )}
       </form>
     </section>
   );

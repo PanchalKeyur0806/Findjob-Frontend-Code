@@ -1,7 +1,6 @@
-import axios from "axios";
-import React, { useActionState, useState } from "react";
-import usePostData from "../../Hooks/FetchDataHook";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useActionState, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../Contexts/useAuth";
 
 const InputFields = ({ labelName, fieldName, fieldType, fieldId }) => {
   return (
@@ -21,7 +20,7 @@ const InputFields = ({ labelName, fieldName, fieldType, fieldId }) => {
 };
 
 const Register = () => {
-  const { setIsAuthenticated } = useOutletContext();
+  const { register, otpFunc } = useAuth();
   // navigation hook
   const navigate = useNavigate();
 
@@ -35,12 +34,6 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [otpError, setOtpError] = useState("");
   const [otpMessage, setOtpMessage] = useState("");
-
-  // custom hook
-  const [postData, data, message, error] = usePostData();
-
-  // check that project is in development
-  const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
 
   // function for otp
   function valueOfOtp(e) {
@@ -61,11 +54,7 @@ const Register = () => {
     const dateOfBirth = formData.get("dateOfBirth");
     const roles = formData.get("roles");
 
-    const url = isDevelopment
-      ? "http://localhost:7000/api/auth/register"
-      : import.meta.env.VITE_BACKEND_URL + "api/auth/register";
-
-    const responseData = await postData(url, {
+    const res = await register({
       name,
       email,
       password,
@@ -73,41 +62,24 @@ const Register = () => {
       dateOfBirth,
       roles,
     });
-    if (!responseData) return;
+    console.log(res);
 
-    if (responseData.status && responseData.status === "success") {
+    if (res.status === "success") {
       setOtpOpen(true);
     }
   }
 
   // handle otp after registering the user
   async function handlingOtp() {
-    try {
-      setOtpError("");
+    const res = await otpFunc({ email, otp });
+    console.log(res);
 
-      const url = isDevelopment
-        ? "http://localhost:7000/api/auth/verifyotp"
-        : import.meta.env.VITE_BACKEND_URL + "api/auth/verifyotp";
+    setOtpMessage(res.message);
 
-      const otpResponse = await axios.post(
-        url,
-        { email, otp },
-        {
-          withCredentials: true,
-        }
-      );
-
-      setOtpMessage(otpResponse.data.message);
-      setIsAuthenticated(true);
-
-      // go to homepage after completion of otp verification
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
-    } catch (error) {
-      setOtpMessage("");
-      setOtpError(error.response.data.message);
-    }
+    // go to homepage after completion of otp verification
+    setTimeout(() => {
+      navigate("/");
+    }, 1000);
   }
 
   // handle google login
@@ -190,7 +162,7 @@ const Register = () => {
             </div>
           </div>
 
-          {error && (
+          {/* {error && (
             <div className="w-full md:w-[95%] bg-red-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
               {error}
             </div>
@@ -199,7 +171,7 @@ const Register = () => {
             <div className="w-full md:w-[95%] bg-green-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
               {message}
             </div>
-          )}
+          )} */}
 
           <div className="mt-10 flex flex-col">
             <button
