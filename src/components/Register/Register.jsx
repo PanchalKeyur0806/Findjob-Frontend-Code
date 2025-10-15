@@ -1,6 +1,7 @@
 import { useActionState, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../Contexts/useAuth";
+import LoadingBar from "react-top-loading-bar";
 
 const InputFields = ({ labelName, fieldName, fieldType, fieldId }) => {
   return (
@@ -20,19 +21,18 @@ const InputFields = ({ labelName, fieldName, fieldType, fieldId }) => {
 };
 
 const Register = () => {
-  const { register, otpFunc } = useAuth();
+  const { error, progress, register, otpFunc } = useAuth();
   // navigation hook
   const navigate = useNavigate();
 
   // others hooks
-  const [state, action, pending] = useActionState(submitUser, {
+  const [, action, pending] = useActionState(submitUser, {
     success: null,
     message: "",
   });
   const [otpopen, setOtpOpen] = useState(false);
   const [otp, setOtp] = useState("");
   const [email, setEmail] = useState("");
-  const [otpError, setOtpError] = useState("");
   const [otpMessage, setOtpMessage] = useState("");
 
   // function for otp
@@ -62,7 +62,6 @@ const Register = () => {
       dateOfBirth,
       roles,
     });
-    console.log(res);
 
     if (res.status === "success") {
       setOtpOpen(true);
@@ -72,14 +71,13 @@ const Register = () => {
   // handle otp after registering the user
   async function handlingOtp() {
     const res = await otpFunc({ email, otp });
-    console.log(res);
 
     setOtpMessage(res.message);
 
     // go to homepage after completion of otp verification
     setTimeout(() => {
       navigate("/");
-    }, 1000);
+    }, 100);
   }
 
   // handle google login
@@ -89,181 +87,182 @@ const Register = () => {
   }
 
   return (
-    <main>
-      <section
-        className={
-          otpopen
-            ? "hidden"
-            : "md:max-w-[800px] w-[95%] mx-auto bg-purple-800 text-white rounded"
-        }
-      >
-        <h1 className="my-5 text-center text-3xl font-bold font-mono">
-          Register Here
-        </h1>
+    <>
+      <LoadingBar color="#8b5cf6" progress={progress} />
 
-        <form action={action} className="mt-8 mb-7 px-5 py-5">
-          {/* Enter your full name */}
-          <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
-            <InputFields
-              labelName="name"
-              fieldType={"name"}
-              fieldId={"name"}
-              fieldName={"name"}
-            />
+      <main>
+        <section
+          className={
+            otpopen
+              ? "hidden"
+              : "md:max-w-[800px] w-[95%] mx-auto bg-purple-800 text-white rounded"
+          }
+        >
+          <h1 className="my-5 text-center text-3xl font-bold font-mono">
+            Register Here
+          </h1>
 
-            {/* Enter your email address */}
-            <InputFields
-              labelName="registerEmail"
-              fieldType={"email"}
-              fieldId={"registerEmail"}
-              fieldName={"email"}
-            />
-          </div>
+          <form action={action} className="mt-8 mb-7 px-5 py-5">
+            {/* Enter your full name */}
+            <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
+              <InputFields
+                labelName="name"
+                fieldType={"name"}
+                fieldId={"name"}
+                fieldName={"name"}
+              />
 
-          {/* Enter your password */}
-          <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
-            <InputFields
-              labelName={"password"}
-              fieldType={"password"}
-              fieldName={"password"}
-              fieldId={"password"}
-            />
+              {/* Enter your email address */}
+              <InputFields
+                labelName="registerEmail"
+                fieldType={"email"}
+                fieldId={"registerEmail"}
+                fieldName={"email"}
+              />
+            </div>
 
-            {/* PhoneNumber */}
-            <InputFields
-              labelName={"phoneNumber"}
-              fieldType={"tel"}
-              fieldName={"phoneNumber"}
-              fieldId={"phoneNumber"}
-            />
-          </div>
+            {/* Enter your password */}
+            <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
+              <InputFields
+                labelName={"password"}
+                fieldType={"password"}
+                fieldName={"password"}
+                fieldId={"password"}
+              />
 
-          {/* Date_of_birth */}
+              {/* PhoneNumber */}
+              <InputFields
+                labelName={"phoneNumber"}
+                fieldType={"tel"}
+                fieldName={"phoneNumber"}
+                fieldId={"phoneNumber"}
+              />
+            </div>
 
-          <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
-            <InputFields
-              labelName={"dateOfBirth"}
-              fieldType={"date"}
-              fieldName={"dateOfBirth"}
-              fieldId={"dateOfBirth"}
-            />
+            {/* Date_of_birth */}
 
-            <div className="mt-5 flex flex-col gap-2">
-              <label htmlFor="roles">Enter your role</label>
-              <select
-                name="roles"
-                id="roles"
-                className="w-full md:w-[95%] rounded px-4 py-3 bg-white text-black"
-                defaultValue={"candidate"}
+            <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
+              <InputFields
+                labelName={"dateOfBirth"}
+                fieldType={"date"}
+                fieldName={"dateOfBirth"}
+                fieldId={"dateOfBirth"}
+              />
+
+              <div className="mt-5 flex flex-col gap-2">
+                <label htmlFor="roles">Enter your role</label>
+                <select
+                  name="roles"
+                  id="roles"
+                  className="w-full md:w-[95%] rounded px-4 py-3 bg-white text-black"
+                  defaultValue={"candidate"}
+                >
+                  <option value="candidate">Candidate</option>
+                  <option value="recruiter">Recruiter</option>
+                </select>
+              </div>
+            </div>
+
+            {error && (
+              <div className="w-full md:w-[95%] bg-red-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
+                {error}
+              </div>
+            )}
+
+            <div className="mt-10 flex flex-col">
+              <button
+                type="submit"
+                className=" px-4 py-3 bg-white text-black rounded cursor-pointer "
+                disabled={pending}
               >
-                <option value="candidate">Candidate</option>
-                <option value="recruiter">Recruiter</option>
-              </select>
+                {pending ? "Loading ...." : "Register"}
+              </button>
             </div>
-          </div>
 
-          {/* {error && (
-            <div className="w-full md:w-[95%] bg-red-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
-              {error}
-            </div>
-          )}
-          {message && (
-            <div className="w-full md:w-[95%] bg-green-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
-              {message}
-            </div>
-          )} */}
+            <p className="text-center my-3">Or</p>
 
-          <div className="mt-10 flex flex-col">
-            <button
-              type="submit"
-              className=" px-4 py-3 bg-white text-black rounded cursor-pointer "
-              disabled={pending}
-            >
-              {pending ? "Loading ...." : "Register"}
-            </button>
-          </div>
-
-          <p className="text-center my-3">Or</p>
-
-          <div>
-            <h1
-              onClick={handleGoogleLogin}
-              className="w-full font-medium text-center bg-white text-black py-3 rounded cursor-pointer"
-            >
-              Login via Google
-            </h1>
-          </div>
-        </form>
-      </section>
-
-      <section
-        className={
-          otpopen ? "h-[65vh] flex justify-center items-center" : "hidden"
-        }
-      >
-        <div className="max-w-[500px] w-[95%] mx-auto rounded-md shadow">
-          <div>
-            <h1 className="my-8 mx-15 text-4xl font-medium">Enter Your Otp</h1>
-          </div>
-          {/* card description */}
-          <div className="mx-15">
-            {/* email field */}
             <div>
-              <label htmlFor="email">Enter Your Email Here :- </label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                placeholder="Enter your email"
-                className="w-full sm:w-[70%] px-4 py-2 outline rounded"
-                onChange={valueOfEmail}
-              />
-            </div>
-
-            {/* otp value */}
-            <div className="mt-5 flex flex-col gap-3 ">
-              <label htmlFor="otp">Enter Your Otp Here :- </label>
-              <input
-                type="text"
-                name="otp"
-                id="otp"
-                placeholder="Enter your otp"
-                className="w-full sm:w-[70%] px-4 py-2 outline rounded"
-                onChange={valueOfOtp}
-              />
-            </div>
-
-            {otpError && (
-              <div className="w-full md:w-[70%] bg-red-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
-                {otpError}
-              </div>
-            )}
-            {otpMessage && (
-              <div className="w-full md:w-[70%] bg-green-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
-                {otpMessage}
-              </div>
-            )}
-
-            {/* submit button */}
-            <div className="mt-8 flex gap-5">
-              <button
-                type="submit"
-                onClick={handlingOtp}
-                className="mb-3 px-4 py-2 bg-green-800 text-white rounded shadow cursor-pointer transition-all duration-200 ease-in-out hover:bg-green-900"
+              <h1
+                onClick={handleGoogleLogin}
+                className="w-full font-medium text-center bg-white text-black py-3 rounded cursor-pointer"
               >
-                Verify Otp
-              </button>
-              <button
-                type="submit"
-                className="mb-3 px-4 py-2 bg-red-800 text-white rounded shadow cursor-pointer transition-all duration-200 ease-in-out hover:bg-red-900"
-              >
-                Resend Otp
-              </button>
+                Login via Google
+              </h1>
+            </div>
+          </form>
+        </section>
+
+        <section
+          className={
+            otpopen ? "h-[65vh] flex justify-center items-center" : "hidden"
+          }
+        >
+          <div className="max-w-[500px] w-[95%] mx-auto rounded-md shadow">
+            <div>
+              <h1 className="my-8 mx-15 text-4xl font-medium">
+                Enter Your Otp
+              </h1>
+            </div>
+            {/* card description */}
+            <div className="mx-15">
+              {/* email field */}
+              <div>
+                <label htmlFor="email">Enter Your Email Here :- </label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  placeholder="Enter your email"
+                  className="w-full sm:w-[70%] px-4 py-2 outline rounded"
+                  onChange={valueOfEmail}
+                />
+              </div>
+
+              {/* otp value */}
+              <div className="mt-5 flex flex-col gap-3 ">
+                <label htmlFor="otp">Enter Your Otp Here :- </label>
+                <input
+                  type="text"
+                  name="otp"
+                  id="otp"
+                  placeholder="Enter your otp"
+                  className="w-full sm:w-[70%] px-4 py-2 outline rounded"
+                  onChange={valueOfOtp}
+                />
+              </div>
+
+              {error && (
+                <div className="w-full md:w-[70%] bg-red-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
+                  {error}
+                </div>
+              )}
+              {otpMessage && (
+                <div className="w-full md:w-[70%] bg-green-500 text-white my-4 px-3 py-2 rounded-md text-sm font-medium">
+                  {otpMessage}
+                </div>
+              )}
+
+              {/* submit button */}
+              <div className="mt-8 flex gap-5">
+                <button
+                  type="submit"
+                  onClick={handlingOtp}
+                  className="mb-3 px-4 py-2 bg-green-800 text-white rounded shadow cursor-pointer transition-all duration-200 ease-in-out hover:bg-green-900"
+                >
+                  Verify Otp
+                </button>
+                <button
+                  type="submit"
+                  className="mb-3 px-4 py-2 bg-red-800 text-white rounded shadow cursor-pointer transition-all duration-200 ease-in-out hover:bg-red-900"
+                >
+                  Resend Otp
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </main>
+    </>
   );
 };
 

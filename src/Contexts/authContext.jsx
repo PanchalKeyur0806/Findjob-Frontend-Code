@@ -7,6 +7,8 @@ import axios from "axios";
 export const AuthContext = createContext({
   user: null,
   isAuthenticated: false,
+  error: null,
+  progress: null,
   login: async () => {},
   register: async () => {},
   logout: async () => {},
@@ -14,11 +16,11 @@ export const AuthContext = createContext({
 });
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState();
+  const [user, setUser] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [getData] = useGetData();
-  const [postData] = usePostData();
+  const [postData, , , error, progress] = usePostData();
 
   const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
   const baseUrl = isDevelopment
@@ -32,7 +34,6 @@ export const AuthProvider = ({ children }) => {
       setUser(response?.data);
       setIsAuthenticated(true);
     } catch (error) {
-      console.log(error);
       setIsAuthenticated(false);
     }
   };
@@ -45,7 +46,6 @@ export const AuthProvider = ({ children }) => {
 
       return response;
     } catch (error) {
-      console.error(error);
       setIsAuthenticated(false);
     }
   };
@@ -59,7 +59,6 @@ export const AuthProvider = ({ children }) => {
 
       return response;
     } catch (error) {
-      console.error(error);
       setIsAuthenticated(false);
     }
   };
@@ -97,7 +96,16 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, login, register, logout, otpFunc }}
+      value={{
+        user,
+        error,
+        progress,
+        isAuthenticated,
+        login,
+        register,
+        logout,
+        otpFunc,
+      }}
     >
       {children}
     </AuthContext.Provider>
