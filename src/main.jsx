@@ -28,6 +28,7 @@ import Contacts from "./components/AdminPages/Contacts.jsx";
 import ChatLayout from "./ChatLayout.jsx";
 import ChatPage from "./components/Chat/ChatPage.jsx";
 import ChatNotification from "./components/Chat/ChatNotification.jsx";
+import { AuthProvider } from "./Contexts/authContext.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -63,8 +64,10 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")).render(
   <>
-    <SocketProvider>
-      <RouterProvider router={router} />
-    </SocketProvider>
+    <AuthProvider>
+      <SocketProvider>
+        <RouterProvider router={router} />
+      </SocketProvider>
+    </AuthProvider>
   </>
 );

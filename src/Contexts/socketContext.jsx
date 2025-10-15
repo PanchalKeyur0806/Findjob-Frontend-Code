@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo } from "react";
+import { createContext, useEffect, useMemo } from "react";
 import { io } from "socket.io-client";
 
 export const SocketContext = createContext();
@@ -16,6 +16,12 @@ export const SocketProvider = ({ children }) => {
       }),
     [socketUrl]
   );
+
+  useEffect(() => {
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket]);
 
   return (
     <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
