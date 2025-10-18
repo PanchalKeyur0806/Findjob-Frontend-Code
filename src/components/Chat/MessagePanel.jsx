@@ -27,7 +27,13 @@ const MessagePanel = ({
                       : "bg-gray-200 text-gray-800"
                   }`}
                 >
-                  <p className="text-sm sm:text-base">{msg.content}</p>
+                  <p className="text-sm sm:text-base">{msg.content} </p>
+
+                  {isOwnMsg && (
+                    <p className="text-xs mt-1 opacity-70 text-right">
+                      {msg.isRead === true ? "✓✓ Read" : "✓ Sent"}
+                    </p>
+                  )}
                 </div>
               </div>
             );

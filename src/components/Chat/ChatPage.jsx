@@ -8,19 +8,24 @@ import { useSocket } from "../../Contexts/useSocket";
 import MessagePanel from "./MessagePanel";
 import usePostData from "../../Hooks/FetchDataHook";
 import { useAuth } from "../../Contexts/useAuth";
+import { usePatchData } from "../../Hooks/usePatchData";
 
 const ChatPage = () => {
   const [chats, setChats] = useState([]);
   const [asideOpen, setAsideOpen] = useState(false);
 
   const [selectChat, setSelectChat] = useState();
-  const [unreadMsg, setUnreadMsg] = useState({});
+  const [unreadMsg, setUnreadMsg] = useState(() => {
+    const saved = localStorage.getItem("unreadMsg");
+    return saved ? JSON.parse(saved) : {};
+  });
 
   const [content, setContent] = useState("");
   const [messages, setMessages] = useState([]);
 
   const [getData, , , , progress] = useGetData();
   const [postData] = usePostData();
+  const [patchData, data, message, error] = usePatchData();
 
   const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
   const baseUrl = isDevelopment
@@ -33,6 +38,11 @@ const ChatPage = () => {
   const messageEndRef = useRef(null);
   const selectChatRef = useRef(null);
   const chatsRef = useRef([]);
+
+  // whenever unreadMsg change, store it on localStorage
+  useEffect(() => {
+    localStorage.setItem("unreadMsg", JSON.stringify(unreadMsg));
+  }, [unreadMsg]);
 
   // whenever stats changes update the ref
   useEffect(() => {
@@ -60,12 +70,20 @@ const ChatPage = () => {
     setAsideOpen(true);
   };
 
-  const handleSelectChat = (chat) => {
+  const handleSelectChat = async (chat) => {
+    if (chat.status === "disabled") {
+      alert("Follow this user to chat with him");
+      return;
+    }
     setSelectChat(chat);
     setUnreadMsg((prev) => ({
       ...prev,
       [chat._id]: 0,
     }));
+
+    // update the message to read
+    const res = await patchData(`${baseUrl}api/messages/${chat._id}/read`, {});
+    console.log(res);
   };
 
   // get all messages
@@ -142,21 +160,34 @@ const ChatPage = () => {
     }
   };
 
-  console.log("chats", chats);
-
-  // this is something new
-  const onMessageRecived = (message) => {
+  // when new message is received
+  const onMessageRecived = async (message) => {
     const chatId = message.chat;
     const currentSelectedChats = selectChatRef.current;
 
     if (message.chat !== currentSelectedChats?._id) {
       setUnreadMsg((prev) => ({ ...prev, [chatId]: (prev[chatId] || 0) + 1 }));
     } else {
+      const res = await patchData(`${baseUrl}api/messages/${chatId}/read`, {});
+      console.log(res);
       setMessages((prev) => [...prev, message]);
       setUnreadMsg((prev) => ({ ...prev, [chatId]: 0 }));
     }
 
     updateChatLastMessage(message.chat, message);
+  };
+
+  // this function runs when user reads the message
+  const onMessageRead = (data) => {
+    const currentChat = selectChatRef.current?._id;
+
+    if (
+      currentChat &&
+      currentChat === data.chatId &&
+      data.targetUserId !== data.userId
+    ) {
+      getMessages();
+    }
   };
 
   // listing for sockets
@@ -182,11 +213,15 @@ const ChatPage = () => {
     // listing on receivedMsg
     socket.on("message_received", onMessageRecived);
 
+    // listing on message read
+    socket.on("message_read", onMessageRead);
+
     return () => {
       socket.off("chat_created");
       socket.off("chat_updated");
       socket.off("chat_deleted");
       socket.off("message_received");
+      socket.off("message_read");
     };
   }, [socket, chats]);
 
@@ -212,9 +247,6 @@ const ChatPage = () => {
             {selectChat ? (
               <MessagePanel
                 key={selectChat._id}
-                // chatId={selectChat._id}
-                // chats={chats}
-                // setChats={setChats}
                 messages={messages}
                 user={user}
                 messageEndRef={messageEndRef}

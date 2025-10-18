@@ -4,7 +4,6 @@ import { useAuth } from "../../Contexts/useAuth";
 
 const ChatAside = ({ chats, asideOpen, onclick, setSelectChat, unreadMsg }) => {
   const { user } = useAuth();
-  console.log(user);
 
   return (
     <aside
@@ -26,7 +25,9 @@ const ChatAside = ({ chats, asideOpen, onclick, setSelectChat, unreadMsg }) => {
                 <div
                   onClick={() => setSelectChat(chat)}
                   key={chat._id}
-                  className="py-3 hover:bg-gray-100 rounded-xl px-2 cursor-pointer"
+                  className={`py-3 hover:bg-gray-100 rounded-xl px-2 cursor-pointer${
+                    count >= 1 ? "border-2 border-green-600 bg-green-200" : ""
+                  }`}
                 >
                   <div className="flex items-center gap-10">
                     <div className="size-10 font-bold text-white px-5 py-2 rounded-full bg-purple-600 flex items-center justify-center">
@@ -52,9 +53,15 @@ const ChatAside = ({ chats, asideOpen, onclick, setSelectChat, unreadMsg }) => {
                     )}
                   </div>
                   <div className="text-center text-sm mt-3 text-gray-500 font-medium">
-                    <p>
-                      {chat?.latestMessage[0]?.content || "No Messages found"}
-                    </p>
+                    {chat.status === "disabled" ? (
+                      <p className="text-red-700 ">
+                        Follow this user to chat with him
+                      </p>
+                    ) : (
+                      <p>
+                        {chat?.latestMessage[0]?.content || "No Messages found"}
+                      </p>
+                    )}
                   </div>
                 </div>
               );

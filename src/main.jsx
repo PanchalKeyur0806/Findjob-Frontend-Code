@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import {
@@ -26,9 +26,10 @@ import Company from "./components/AdminPages/Company.jsx";
 import Claims from "./components/AdminPages/Claims.jsx";
 import Contacts from "./components/AdminPages/Contacts.jsx";
 import ChatLayout from "./ChatLayout.jsx";
-import ChatPage from "./components/Chat/ChatPage.jsx";
 import ChatNotification from "./components/Chat/ChatNotification.jsx";
 import { AuthProvider } from "./Contexts/authContext.jsx";
+
+const ChatPage = lazy(() => import("././components/Chat/ChatPage.jsx"));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -46,7 +47,14 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="chat" element={<ChatLayout />}>
-        <Route path="" element={<ChatPage />} />
+        <Route
+          path=""
+          element={
+            <Suspense>
+              <ChatPage />
+            </Suspense>
+          }
+        />
         <Route path="notifications" element={<ChatNotification />} />
       </Route>
 

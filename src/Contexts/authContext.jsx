@@ -53,7 +53,6 @@ export const AuthProvider = ({ children }) => {
   const otpFunc = async (data) => {
     try {
       const response = await postData(`${baseUrl}api/auth/verifyotp`, data);
-      console.log(response.data);
       setUser(response.data);
       setIsAuthenticated(true);
 
