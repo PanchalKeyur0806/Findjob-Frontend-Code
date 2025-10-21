@@ -9,6 +9,7 @@ import MessagePanel from "./MessagePanel";
 import usePostData from "../../Hooks/FetchDataHook";
 import { useAuth } from "../../Contexts/useAuth";
 import { usePatchData } from "../../Hooks/usePatchData";
+import axios from "axios";
 
 const ChatPage = () => {
   const [chats, setChats] = useState([]);
@@ -25,7 +26,7 @@ const ChatPage = () => {
 
   const [getData, , , , progress] = useGetData();
   const [postData] = usePostData();
-  const [patchData, data, message, error] = usePatchData();
+  const [patchData] = usePatchData();
 
   const isDevelopment = import.meta.env.VITE_REACT_ENV === "development";
   const baseUrl = isDevelopment
@@ -82,14 +83,13 @@ const ChatPage = () => {
     }));
 
     // update the message to read
-    const res = await patchData(`${baseUrl}api/messages/${chat._id}/read`, {});
-    console.log(res);
+    await patchData(`${baseUrl}api/messages/${chat._id}/read`, {});
   };
 
   // get all messages
   const getMessages = async () => {
     const response = await getData(
-      `${baseUrl}api/messages/${selectChat?._id}`,
+      `${baseUrl}api/messages/${selectChatRef.current?._id}`,
       {
         withCredentials: true,
       }
@@ -148,6 +148,44 @@ const ChatPage = () => {
     updateChatLastMessage(newMsg.chat, newMsg);
   };
 
+  // handle latestMessage on deletion
+  const updateLastMsgOnDeletion = async (chatId, message) => {
+    const chatToUpdate = chats.find((chat) => chat._id === chatId);
+    if (!chatToUpdate) return;
+
+    // find the remaingMsgs and find the latestMessage
+    const remaingMsg = messages.filter((msg) => msg._id !== message._id);
+    const newLastestMsg = remaingMsg[remaingMsg.length - 1] || null;
+
+    // update the latest msgs
+    chatToUpdate.latestMessage[0] = newLastestMsg;
+
+    // save changes to chat
+    setChats([chatToUpdate, ...chats.filter((chat) => chat._id !== chatId)]);
+  };
+
+  // handle delete messages
+  const handleDeleteMsgs = async (message) => {
+    // get the chatId
+    const chatId = selectChatRef.current?._id;
+
+    // delete the current msg
+    const response = await axios.delete(
+      `${baseUrl}api/messages/${chatId}/${message._id}`,
+      {
+        withCredentials: true,
+      }
+    );
+
+    // remove the deleted msg from the "messages" state
+    setMessages((prev) =>
+      prev.filter((msg) => msg._id !== response.data.data._id)
+    );
+
+    // update the latestMsg on chat
+    updateLastMsgOnDeletion(message.chat, message);
+  };
+
   // handle message
   const handleContent = (e) => {
     setContent(e.target.value);
@@ -155,7 +193,7 @@ const ChatPage = () => {
 
   // send message when enter key is pressed
   const handleKeyDown = (e) => {
-    if ((e.key === "Enter") & (e.target.value.trim() !== "")) {
+    if (e.key === "Enter" && e.target.value.trim() !== "") {
       handleSendMessage();
     }
   };
@@ -168,8 +206,7 @@ const ChatPage = () => {
     if (message.chat !== currentSelectedChats?._id) {
       setUnreadMsg((prev) => ({ ...prev, [chatId]: (prev[chatId] || 0) + 1 }));
     } else {
-      const res = await patchData(`${baseUrl}api/messages/${chatId}/read`, {});
-      console.log(res);
+      await patchData(`${baseUrl}api/messages/${chatId}/read`, {});
       setMessages((prev) => [...prev, message]);
       setUnreadMsg((prev) => ({ ...prev, [chatId]: 0 }));
     }
@@ -188,6 +225,15 @@ const ChatPage = () => {
     ) {
       getMessages();
     }
+  };
+
+  const onMessageDeleted = (data) => {
+    if (data.chat === selectChatRef.current?._id) {
+      setMessages((prev) => prev.filter((msg) => msg._id !== data._id));
+    }
+
+    // update the last msg
+    updateLastMsgOnDeletion(data.chat, data);
   };
 
   // listing for sockets
@@ -215,6 +261,9 @@ const ChatPage = () => {
 
     // listing on message read
     socket.on("message_read", onMessageRead);
+
+    // listing on message delete
+    socket.on("message_deleted", onMessageDeleted);
 
     return () => {
       socket.off("chat_created");
@@ -255,6 +304,7 @@ const ChatPage = () => {
                 handleContent={handleContent}
                 handleKeyDown={handleKeyDown}
                 handleSendMessage={handleSendMessage}
+                handleDeleteMsgs={handleDeleteMsgs}
               />
             ) : (
               <div className="h-screen flex items-center justify-center text-xl font-poppins font-semibold">

@@ -29,7 +29,7 @@ import ChatLayout from "./ChatLayout.jsx";
 import ChatNotification from "./components/Chat/ChatNotification.jsx";
 import { AuthProvider } from "./Contexts/authContext.jsx";
 
-const ChatPage = lazy(() => import("././components/Chat/ChatPage.jsx"));
+const ChatPage = lazy(() => import("./components/Chat/ChatPage.jsx"));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
